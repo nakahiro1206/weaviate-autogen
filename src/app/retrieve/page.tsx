@@ -1,9 +1,11 @@
 "use client";
-import { addPaper } from "@/weaviate/store";
-import { PaperEntry } from "@/weaviate/types";
+import { useState } from "react";
+import { searchSimilar } from "@/weaviate/retrieve";
+import { PaperEntry, RetrieveResult } from "@/weaviate/types";
 
 export default function Home() {
   const history = ["paper 1", "paper 2", "paper 3"];
+  const [results, setResults] = useState<RetrieveResult[]>([]);
 
   const entry: PaperEntry = {
     title: "How to cook sunny side up",
@@ -12,11 +14,11 @@ export default function Home() {
     comments: "This is really impressive literacture",
   };
 
-  const add = async (): Promise<void> => {
-    const res = await addPaper(entry);
+  const search = async (): Promise<void> => {
+    const res = await searchSimilar({ query: "aaaa" });
     switch (res.__typename) {
-      case "AddPaperResponse":
-        alert(res.id);
+      case "SearchSimilarResponse":
+        setResults(res.results);
         return;
       case "Err":
         alert(res.message);
@@ -49,27 +51,40 @@ export default function Home() {
         <div className="w-full px-16  flex flex-col gap-2">
           <div className="w-full pb-4">
             <div className="border-b-1 border-sky-800 text-2xl font-extrabold text-sky-600">
-              Let's Summarize Academic Paper!
+              Let's Retrieve Related Papers!
             </div>
           </div>
-          <div className="w-full rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
-            <div>TITLE</div>
-            <div>{entry.title}</div>
-            <div>AUTHORS</div>
-            <div>{entry.authors}</div>
-            <div>ABSTRACT</div>
-            <div>{entry.abstract}</div>
-          </div>
 
-          <div className="w-full flex flex-row justify-end">
+          <div className="w-full flex flex-row gap-2">
+            <textarea className="w-4/5 h-12 rounded-lg text-left text-sky-800 shadow-sm p-2 focus:outline-1 focus:outline-sky-600 resize-none appearance-none" />
             <div className="w-1/5 h-12 rounded-lg text-center text-white shadow-sm bg-sky-500">
               <button
                 className="w-full h-full flex items-center justify-center"
-                onClick={add}
+                onClick={search}
               >
-                Save document!
+                Retrieve document!
               </button>
             </div>
+          </div>
+
+          <div className="w-full flex flex-col gap-2">
+            {results.map((item, index) => {
+              return (
+                <div
+                  key={index}
+                  className="w-full h-12 rounded-lg text-center shadow-sm bg-white"
+                >
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div>TITLE</div>
+                    <div>{item.title}</div>
+                    <div>AUTHORS</div>
+                    <div>{item.authors}</div>
+                    <div>ABSTRACT</div>
+                    <div>{item.abstract}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
