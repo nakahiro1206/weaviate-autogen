@@ -1,4 +1,18 @@
 services:
+  postgres:
+    image: postgres
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: username
+      POSTGRES_DB: database
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
   weaviate:
     image: semitechnologies/weaviate:1.25.1
     ports:
@@ -11,6 +25,7 @@ services:
       ENABLE_MODULES: ""
     volumes:
       - weaviate_data:/var/lib/weaviate
+
   frontend:
     platform: linux/arm64
     build:
@@ -33,3 +48,4 @@ services:
 volumes:
   weaviate_data:
   weaviate_frontend:
+  pgdata:

@@ -1,4 +1,5 @@
 "use client";
+import { testConnection } from "@/postgres/client";
 import { addPaper } from "@/weaviate/store";
 import { PaperEntry } from "@/weaviate/types";
 
@@ -13,6 +14,12 @@ export default function Home() {
   };
 
   const add = async (): Promise<void> => {
+    try {
+      const r = await testConnection();
+      alert(r);
+    } catch (error) {
+      alert(error);
+    }
     const res = await addPaper(entry);
     switch (res.__typename) {
       case "AddPaperResponse":

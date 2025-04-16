@@ -8,6 +8,7 @@ export default function Home() {
   const [papers, setPapers] = useState<GetAllResult[]>([]);
 
   useEffect(() => {
+    // if it has error, no card will be shown
     const getAll = async () => {
       const res = await getAllPapers();
       switch (res.__typename) {

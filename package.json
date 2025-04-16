@@ -11,6 +11,7 @@
   "dependencies": {
     "next": "15.3.0",
     "openai": "^4.94.0",
+    "pg": "^8.14.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "weaviate-ts-client": "^2.2.0"
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.11.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
