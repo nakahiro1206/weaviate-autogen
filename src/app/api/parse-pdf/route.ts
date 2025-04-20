@@ -1,6 +1,7 @@
 "use server";
-import PdfParse from "pdf-parse";
+import PdfParse from "@/pdf-parse";
 import { NextResponse } from "next/server";
+import pdfToText from "react-pdftotext";
 
 export async function POST(req: Request): Promise<Response> {
   try {
@@ -16,6 +17,8 @@ export async function POST(req: Request): Promise<Response> {
     // Parse PDF metadata using PDF.js
     const pdf = await PdfParse(buffer);
     const text = pdf.text;
+
+    // const text = await pdfToText(file);
 
     return NextResponse.json(
       {

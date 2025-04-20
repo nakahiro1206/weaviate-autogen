@@ -154,6 +154,7 @@ export default function Home() {
           <div className="w-full flex flex-row gap-2 p-2">
             <input
               type="file"
+              accept="application/pdf"
               multiple={false}
               ref={inputRef}
               onChange={handleFileChange}
