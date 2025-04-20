@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getAllPapers } from "@/weaviate/retrieve";
-import { GetAllResult, PaperEntry } from "@/weaviate/types";
-// import PdfPreview from "./Preview";
+import { GetAllResult } from "@/weaviate/types";
 import dynamic from "next/dynamic";
 
 const PdfPreview = dynamic(() => import("./Preview"), { ssr: false });
@@ -11,6 +10,9 @@ export default function Home() {
   const history = ["paper 1", "paper 2", "paper 3"];
   const [papers, setPapers] = useState<GetAllResult[]>([]);
   const [activePdfEncoded, setActivePdfEncoded] = useState<string | null>(null);
+  const deactivatePdf = () => {
+    setActivePdfEncoded(null);
+  };
 
   useEffect(() => {
     // if it has error, no card will be shown
@@ -81,9 +83,12 @@ export default function Home() {
               </div>
             );
           })}
-
-          {activePdfEncoded && <PdfPreview encoded={activePdfEncoded} />}
         </div>
+        {activePdfEncoded && (
+          <div className="fixed inset-0 z-50 max-h-lvh overflow-y-scroll">
+            <PdfPreview encoded={activePdfEncoded} close={deactivatePdf} />
+          </div>
+        )}
       </div>
     </div>
   );
