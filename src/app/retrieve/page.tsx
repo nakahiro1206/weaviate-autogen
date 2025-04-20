@@ -12,6 +12,7 @@ export default function Home() {
     abstract: "Instruction: 1. aaa. 2. bbb",
     authors: "Master. Egg",
     comments: "This is really impressive literacture",
+    encoded: "encoded data",
   };
 
   const search = async (): Promise<void> => {

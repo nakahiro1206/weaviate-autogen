@@ -3,6 +3,7 @@ export type PaperEntry = {
   abstract: string;
   authors: string;
   comments: string;
+  encoded: string;
 };
 
 export type RetrieveResult = {

@@ -10,6 +10,7 @@ export const createSchema = async () => {
       { name: "abstract", dataType: ["text"] },
       { name: "authors", dataType: ["text"] },
       { name: "comments", dataType: ["text"] },
+      { name: "encoded", dataType: ["text"] },
     ],
   };
 

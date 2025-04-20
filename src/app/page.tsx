@@ -8,9 +8,9 @@ import {
 } from "react";
 import { testConnection } from "@/postgres/client";
 import { addPaper } from "@/weaviate/store";
-import { PaperEntry } from "@/weaviate/types";
 import { cn } from "@/lib/utils";
 import { summarizeDocument } from "@/openai/summary";
+import { parsePDF } from "@/service/parse-pdf";
 
 const PlusIcon: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -53,10 +53,15 @@ const SubmitIcon: FC<{ className?: string }> = ({ className }) => {
 export default function Home() {
   const history = ["paper 1", "paper 2", "paper 3"];
 
+  const [text, setText] = useState<string | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
+  const [encoded, setEncoded] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const isValidFile = (file: File) => {
+    return file.type === "application/pdf"; //  && file.size <= 10 * 1024 * 1024;
+  };
 
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (
     event,
@@ -74,26 +79,40 @@ export default function Home() {
 
   const summarize = async () => {
     if (!file) return;
+    // body size, PDF validation
+    // Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     const encoded = Buffer.from(await file.arrayBuffer()).toString("base64");
-    const summary = await summarizeDocument(file);
-    setSummary(summary);
-  };
-
-  const entry: PaperEntry = {
-    title: "How to cook sunny side up",
-    abstract: "Instruction: 1. aaa. 2. bbb",
-    authors: "Master. Egg",
-    comments: "This is really impressive literacture",
+    setEncoded(encoded);
+    const res = await parsePDF({ file });
+    switch (res.__typename) {
+      case "ParsePdfOutput":
+        setText(res.text);
+        const summary = await summarizeDocument(res.text);
+        setSummary(summary);
+        break;
+      case "Err":
+        alert("Error parsing PDF");
+        break;
+    }
   };
 
   const add = async (): Promise<void> => {
-    try {
-      const r = await testConnection();
-      alert(r);
-    } catch (error) {
-      alert(error);
+    if (encoded === null || summary === null) {
+      return;
     }
-    const res = await addPaper(entry);
+    // try {
+    //   const r = await testConnection();
+    //   alert(r);
+    // } catch (error) {
+    //   alert(error);
+    // }
+    const res = await addPaper({
+      title: "How to cook sunny side up",
+      abstract: summary,
+      authors: "Master. Egg",
+      comments: "This is really impressive literacture",
+      encoded: encoded,
+    });
     switch (res.__typename) {
       case "AddPaperResponse":
         alert(res.id);
@@ -140,14 +159,19 @@ export default function Home() {
               onChange={handleFileChange}
               className="hidden"
             />
-            {file === null ? (
-              <button
-                className="w-10 h-10 flex flex-col justify-center items-center rounded-lg p-1 bg-sky-500 hover:border-2 hover:border-solid hover:border-sky-600"
-                onClick={handleClick}
-              >
-                <PlusIcon className="text-white" />
-              </button>
-            ) : (
+            <button
+              className="w-10 h-10 flex flex-col justify-center items-center rounded-lg p-1 bg-sky-500 hover:border-2 hover:border-solid hover:border-sky-600"
+              onClick={handleClick}
+            >
+              <PlusIcon className="text-white" />
+            </button>
+            {file && (
+              <div className="h-10 flex flex-col justify-center gap-1">
+                <div>{file.name}</div>
+                <div>{file.size}</div>
+              </div>
+            )}
+            {file && isValidFile(file) && (
               <button
                 className="w-10 h-10 flex flex-col justify-center items-center rounded-lg p-1 bg-sky-500 hover:border-2 hover:border-solid hover:border-sky-600"
                 onClick={summarize}
@@ -155,20 +179,9 @@ export default function Home() {
                 <SubmitIcon className="text-white" />
               </button>
             )}
-            {file && (
-              <div className="h-10 flex flex-col justify-center gap-1">
-                {file.name}
-                {file.size}
-              </div>
-            )}
           </div>
           <div className="w-full rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
-            <div>TITLE</div>
-            <div>{entry.title}</div>
-            <div>AUTHORS</div>
-            <div>{entry.authors}</div>
-            <div>ABSTRACT</div>
-            <div>{entry.abstract}</div>
+            {text && <div>TEXT: {text}</div>}
             {summary && <div>SUMMARY: {summary}</div>}
           </div>
 

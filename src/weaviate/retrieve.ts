@@ -19,7 +19,7 @@ export const searchSimilar = async ({
       .withClassName("Paper")
       .withFields(
         // if you attribute certainty in this search query, you can specify allowed certainty.
-        "title abstract authors comments _additional {certainty}",
+        "title abstract authors comments encoded _additional {certainty}",
       )
       .withNearVector({ vector, certainty: 0.7 })
       .withLimit(5)
@@ -42,7 +42,7 @@ export const getAllPapers = async (): Promise<GetAllResponse | Err> => {
       .withClassName("Paper")
       .withFields(
         // you can get additional fields named id and vector
-        "title abstract authors comments _additional { id vector }",
+        "title abstract authors comments encoded _additional { id vector }",
       )
       .withLimit(100)
       .do();
