@@ -7,15 +7,14 @@ export type PaperEntry = {
 };
 
 export type RetrieveResult = {
-  _additional: {
-    distance: number;
+  metadata: {
+    distance: number | undefined;
   };
 } & PaperEntry;
 
 export type GetAllResult = {
-  _additional: {
-    id: string;
-    vector: number[];
+  metadata: {
+    uuid: string;
   };
 } & PaperEntry;
 

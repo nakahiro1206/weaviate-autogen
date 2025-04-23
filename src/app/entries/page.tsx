@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getAllPapers } from "@/weaviate/retrieve";
+import { getAllPapers } from "@/weaviate/similarity-search";
 import { GetAllResult } from "@/weaviate/types";
 import dynamic from "next/dynamic";
 

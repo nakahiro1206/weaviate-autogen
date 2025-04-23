@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { testConnection } from "@/postgres/client";
-import { addPaper } from "@/weaviate/store";
+import { addPaper } from "@/weaviate/insert";
 import { cn } from "@/lib/utils";
 import { summarizeDocument } from "@/openai/summary";
 import { parsePDF } from "@/service/parse-pdf";

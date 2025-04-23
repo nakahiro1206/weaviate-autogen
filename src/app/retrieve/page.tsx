@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { searchSimilar } from "@/weaviate/retrieve";
+import { searchSimilar } from "@/weaviate/similarity-search";
 import { PaperEntry, RetrieveResult } from "@/weaviate/types";
 
 export default function Home() {
