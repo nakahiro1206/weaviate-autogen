@@ -4,6 +4,18 @@ export type PaperEntry = {
   authors: string;
   comments: string;
   encoded: string;
+  // citation: {shorthand: string; bibtex: string; }
+  // info: {
+  //   title: string;
+  //   abstract?: string;
+  //   author: string;
+  //   journal?: string;
+  //   volume?: string;
+  //   number?: string;
+  //   pages?: string;
+  //   year?: string;
+  //   publisher?: string;
+  // };
 };
 
 export type RetrieveResult = {

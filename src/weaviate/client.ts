@@ -1,3 +1,5 @@
+// you cannot use use client here.
+// otherwise, all the methods will be passed as undefined.
 import weaviate, {
   WeaviateClient,
   vectorizer,

@@ -11,6 +11,8 @@ import { addPaper } from "@/weaviate/insert";
 import { cn } from "@/lib/utils";
 import { summarizeDocument } from "@/openai/summary";
 import { parsePDF } from "@/service/parse-pdf";
+import { Button } from "@/components/ui/button";
+import { SubmitForm } from "@/components/custom-dialog";
 
 const PlusIcon: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -152,6 +154,10 @@ export default function Home() {
             </div>
           </div>
           <div className="w-full flex flex-row gap-2 p-2">
+            <SubmitForm
+              trigger={<Button>Click</Button>}
+              submitFunction={() => {}}
+            />
             <input
               type="file"
               accept="application/pdf"
