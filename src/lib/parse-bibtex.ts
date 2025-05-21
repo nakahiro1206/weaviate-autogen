@@ -69,18 +69,20 @@ export const constructPaperInfo = (
     case "ParseError":
       return {
         __typename: "ConstructError",
-        message: `ConstructError: ${rec.message}`,
+        message: `ParseError: ${rec.message}`,
       };
     case "ParseSuccess":
       const { data } = rec;
+      const type = data.type || undefined;
+      const id = data.id || undefined;
       const title = data.title || undefined;
-      const authors = data.author || undefined;
+      const author = data.author || undefined;
       const year = data.year || undefined;
       const journal = data.journal || undefined;
       const volume = data.volume || undefined;
       const pages = data.pages || undefined;
 
-      if (title === undefined || authors === undefined) {
+      if (title === undefined || author === undefined || type === undefined || id === undefined) {
         return {
           __typename: "ConstructError",
           message: "ConstructError: Title and authors are required",
@@ -90,8 +92,10 @@ export const constructPaperInfo = (
       return {
         __typename: "ConstructSuccess",
         data: {
+          type,
+          id,
           title,
-          authors,
+          author,
           year,
           journal,
           volume,

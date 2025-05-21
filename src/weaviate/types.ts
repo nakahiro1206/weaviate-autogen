@@ -1,26 +1,10 @@
-export type PaperEntry = {
-  title: string;
-  abstract: string;
-  authors: string;
-  comments: string;
-  encoded: string;
-  // citation: {shorthand: string; bibtex: string; }
-  // info: {
-  //   title: string;
-  //   abstract?: string;
-  //   author: string;
-  //   journal?: string;
-  //   volume?: string;
-  //   number?: string;
-  //   pages?: string;
-  //   year?: string;
-  //   publisher?: string;
-  // };
-};
+import { PaperEntry } from "@/types/paper";
 
 export type RetrieveResult = {
   metadata: {
-    distance: number | undefined;
+    chunk: string;
+    chapter_title: string;
+    chunk_index: string;
   };
 } & PaperEntry;
 

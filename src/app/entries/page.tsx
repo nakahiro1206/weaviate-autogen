@@ -59,30 +59,43 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="w-full grid grid-cols-2 gap-2">
-          {papers.map((item, index) => {
-            return (
-              <div
-                key={index}
-                className="w-full h-60 rounded-lg text-center shadow-sm bg-white"
-              >
-                <div
-                  className="w-full h-full flex flex-col gap-1 items-center justify-center"
-                  onClick={() => {
-                    setActivePdfEncoded(item.encoded);
-                  }}
-                >
-                  <div>TITLE</div>
-                  <div>{item.title}</div>
-                  <div>AUTHORS</div>
-                  <div>{item.authors}</div>
-                  <div>ABSTRACT</div>
-                  <div className="w-full line-clamp-3">{item.abstract}</div>
-                  {/* <div>{item.encoded}</div> */}
-                </div>
-              </div>
-            );
-          })}
+        <div className="w-full overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Summary</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {papers.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{item.info.title}</div>
+                    <div className="text-sm text-gray-500">{item.info.author}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900 line-clamp-2">{item.summary}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Chunked
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => setActivePdfEncoded(item.encoded)}
+                      className="text-sky-600 hover:text-sky-900"
+                    >
+                      Preview
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         {activePdfEncoded && (
           <div className="fixed inset-0 z-50 max-h-lvh overflow-y-scroll">

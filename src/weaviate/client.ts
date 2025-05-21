@@ -40,17 +40,28 @@ export class WeaviateClientHandle {
       name: "Paper",
       vectorizers: [
         vectorizer.text2VecOpenAI({
-          name: "abstractEmbedding",
-          sourceProperties: ["abstract"],
+          name: "summaryEmbedding",
+          sourceProperties: ["summary"],
           // vectorIndexConfig: configure.vectorIndex.hnsw()   // (Optional) Set the vector index configuration
         }),
       ],
       properties: [
-        { name: "title", dataType: dataType.TEXT },
-        { name: "abstract", dataType: dataType.TEXT },
-        { name: "authors", dataType: dataType.TEXT },
-        { name: "comments", dataType: dataType.TEXT },
+        { name: "summary", dataType: dataType.TEXT },
+        { name: "comment", dataType: dataType.TEXT },
         { name: "encoded", dataType: dataType.TEXT },
+        { name: "info", dataType: dataType.OBJECT, nestedProperties: [
+          { name: "type", dataType: dataType.TEXT },
+          { name: "id", dataType: dataType.TEXT },
+          { name: "title", dataType: dataType.TEXT },
+          { name: "abstract", dataType: dataType.TEXT },
+          { name: "author", dataType: dataType.TEXT },
+          { name: "journal", dataType: dataType.TEXT },
+          { name: "volume", dataType: dataType.TEXT },
+          { name: "number", dataType: dataType.TEXT },
+          { name: "pages", dataType: dataType.TEXT },
+          { name: "year", dataType: dataType.TEXT },
+          { name: "publisher", dataType: dataType.TEXT },
+        ] },
       ],
     });
     return this.paperCollection;

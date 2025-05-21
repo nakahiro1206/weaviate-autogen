@@ -7,19 +7,20 @@ export default function Home() {
   const history = ["paper 1", "paper 2", "paper 3"];
   const [results, setResults] = useState<RetrieveResult[]>([]);
 
-  const entry: PaperEntry = {
-    title: "How to cook sunny side up",
-    abstract: "Instruction: 1. aaa. 2. bbb",
-    authors: "Master. Egg",
-    comments: "This is really impressive literacture",
-    encoded: "encoded data",
-  };
+  // const entry: PaperEntry = {
+  //   title: "How to cook sunny side up",
+  //   abstract: "Instruction: 1. aaa. 2. bbb",
+  //   authors: "Master. Egg",
+  //   comments: "This is really impressive literacture",
+  //   encoded: "encoded data",
+  // };
 
   const search = async (): Promise<void> => {
     const res = await searchSimilar({ query: "aaaa" });
     switch (res.__typename) {
       case "SearchSimilarResponse":
         setResults(res.results);
+        console.log(res.results);
         return;
       case "Err":
         alert(res.message);
