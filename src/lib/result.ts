@@ -1,3 +1,15 @@
+import { z } from "zod";
+export const  UnknownResultSchema = z.union([
+    z.object({
+        type: z.literal('success'),
+        data: z.unknown(),
+    }),
+    z.object({
+        type: z.literal('error'),
+        message: z.string(),
+    })])
+export type UnknownResult = z.infer<typeof UnknownResultSchema>;
+
 export type Result<T> = {
     type: 'success'
      data: T;
@@ -29,3 +41,17 @@ export const match = <T>(
     callback.onError(result.message);
   }
 };
+
+
+export const maybe = (unknown: unknown): Result<unknown> => {
+    const result = UnknownResultSchema.safeParse(unknown);
+    if (!result.success) {
+        return Err(result.error.message);
+    }
+    switch (result.data.type) {
+        case 'success':
+            return Ok(result.data.data);
+        case 'error':
+            return Err(result.data.message);
+    }
+}

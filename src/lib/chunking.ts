@@ -89,6 +89,26 @@ export function getChunksFixedSizeWithOverlap(
   return chunks;
 }
 
+export function getChunksMaxChunkWithOverlap(
+  text: string,
+  maxChunk: number, // max number of words in a chunk
+  overlapFraction: number
+): string[] {
+  const textWords = wordSplitter(text);
+  const estimatedChunkSize = Math.floor(textWords.length / maxChunk);
+  const overlapInt = Math.floor(estimatedChunkSize * overlapFraction);
+  const chunks: string[] = [];
+
+  for (let i = 0; i < maxChunk; i += maxChunk) {
+    const start = Math.max(estimatedChunkSize * i - overlapInt, 0);
+    const end = Math.min(estimatedChunkSize * (i + 1), textWords.length);
+    const chunk = textWords.slice(start, end).join(' ');
+    chunks.push(chunk);
+  }
+
+  return chunks;
+}
+
 /**
  * Splits text into chunks by paragraphs
  */

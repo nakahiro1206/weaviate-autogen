@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { addPaper } from "@/weaviate/insert";
+import { addPaper } from "@/lib/weaviate-client/insert";
 import { summarizeDocument } from "@/openai/summary";
 import { parsePDF } from "@/service/parse-pdf";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { SubmitForm } from "@/components/summarize/custom-dialog";
 import { PlusIcon } from "@/components/icons/plus";
 import { SubmitIcon } from "@/components/icons/submit";
 import { PaperInfo } from "@/types/paper";
+import { match } from "@/lib/result";
 
 export const Summarize: FC = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
@@ -70,14 +71,14 @@ export const Summarize: FC = () => {
       encoded: encoded,
       info: data,
     });
-    switch (res.__typename) {
-      case "AddPaperResponse":
-        alert(res.id);
-        return;
-      case "Err":
-        alert(res.message);
-        return;
-    }
+    match(res, {
+      onSuccess: (data) => {
+        alert(data);
+      },
+      onError: (message) => {
+        alert(message);
+      },
+    });
   };
 
   return (

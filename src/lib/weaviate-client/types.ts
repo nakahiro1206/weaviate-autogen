@@ -1,18 +1,19 @@
-import { PaperEntry } from "@/types/paper";
+import { PaperEntry, PaperEntrySchema } from "@/types/paper";
+import { z } from "zod";
 
 export type RetrieveResult = {
-  metadata: {
-    chunk: string;
-    chapter_title: string;
-    chunk_index: string;
-  };
-} & PaperEntry;
-
-export type GetAllResult = {
   metadata: {
     uuid: string;
   };
 } & PaperEntry;
+
+export const GetAllPapersResultSchema = z.array(z.object({
+  metadata: z.object({
+    uuid: z.string(),
+  }),
+  ...PaperEntrySchema.shape,
+}));
+export type GetAllPapersResult = z.infer<typeof GetAllPapersResultSchema>;
 
 export type AddPaperInput = PaperEntry;
 
@@ -28,11 +29,6 @@ export type SearchSimilarInput = {
 export type SearchSimilarResponse = {
   __typename: "SearchSimilarResponse";
   results: RetrieveResult[];
-};
-
-export type GetAllResponse = {
-  __typename: "GetAllResponse";
-  results: GetAllResult[];
 };
 
 export type Err = {

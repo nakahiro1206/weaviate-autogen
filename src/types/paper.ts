@@ -23,4 +23,17 @@ export const PaperEntrySchema = z.object({
   info: PaperInfoSchema,
 });
 
+export const PaperEntryListSchema = z.array(PaperEntrySchema);
+
 export type PaperEntry = z.infer<typeof PaperEntrySchema>;
+
+export type PaperEntryList = z.infer<typeof PaperEntryListSchema>;
+
+export const PaperChunkSchema = z.object({
+  text: z.string(),
+  paperId: z.string(),
+  paperTitle: z.string(),
+  chunkIndex: z.number(),
+});
+
+export type PaperChunk = z.infer<typeof PaperChunkSchema>;

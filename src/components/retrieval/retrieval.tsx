@@ -1,9 +1,9 @@
-"use client";
-import { useState } from "react";
-import { searchSimilar } from "@/weaviate/similarity-search";
-import { PaperEntry, RetrieveResult } from "@/weaviate/types";
 
-export default function Home() {
+import { useState } from "react";
+import { searchSimilar } from "@/lib/weaviate-client/similarity-search";
+import { RetrieveResult } from "@/lib/weaviate-client/types";
+
+export const Retrieval = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
   const [results, setResults] = useState<RetrieveResult[]>([]);
 
