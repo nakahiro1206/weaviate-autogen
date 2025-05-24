@@ -1,60 +1,65 @@
-import { Err, Ok, Result } from "@/lib/result";
-import { getAllPapers } from "@/lib/weaviate-client/fetch";
-import { addPaper as addPaperWeaviate } from "@/lib/weaviate-client/insert";
-import { AddPaperInput, AddPaperResponse, extractMessage, GetAllPapersResult, GetAllPapersResultSchema } from "@/lib/weaviate-client/types";
-import { PaperEntry, PaperEntrySchema } from "@/types/paper";
-
-export const fetchAllPapersApi = async (): Promise<Result<GetAllPapersResult>> => {
-    return getAllPapers();
-}
+import { Err, Ok, Result, safeFetch, match } from "@/lib/result";
+import { AddPaperResponse, AddPaperResponseSchema, extractMessage, GetAllPapersResult, GetAllPapersResultSchema } from "@/storage/types";
+import { PaperEntry, PaperChunk, PaperChunkSchema } from "@/types/paper";
+import { z } from "zod";
 
 export const fetchAllPapers = async (): Promise<Result<GetAllPapersResult>> => {
-    try {
-        const res = await fetch("/api/weaviate/paper", {
+    return safeFetch(
+        "all papers",
+        GetAllPapersResultSchema,
+        "/api/weaviate/paper",
+        {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
-        if (!res.ok) {
-            return Err(`Failed to fetch all papers: ${res.statusText}`);
         }
-        const data = await res.json();
-        const parsed = GetAllPapersResultSchema.safeParse(data);
-        if (!parsed.success) {
-            const msg = parsed.error.errors.map(e => e.message).join("\n");
-            return Err(`Failed to parse all papers: ${msg}`);
-        }
-        return Ok(parsed.data);
-    } catch (err) {
-        return Err(`Failed to fetch all papers: ${extractMessage(err)}`);
-    }
+    )
 }
 
-export const addPaperApi = async (paper: unknown): Promise<Result<string>> => {
-    const parsed = PaperEntrySchema.safeParse(paper);
-    if (!parsed.success) {
-        return Err(`Failed to parse paper: ${parsed.error.message}`);
-    }
-    const res = await addPaperWeaviate(parsed.data);
-    return res;
-}
-
-export const addPaper = async(paper: PaperEntry): Promise<Result<string>> => {
-    try {
-        const res = await fetch("/api/weaviate/paper", {
+export const addPaper = async(paper: PaperEntry): Promise<Result<AddPaperResponse>> => {
+    return safeFetch(
+        "add paper",
+        AddPaperResponseSchema,
+        "/api/weaviate/paper",
+        {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(paper),
-        })
-        if (!res.ok) {
-            return Err(`Failed to add paper: ${res.statusText}`);
         }
-        const data = await res.json();
-        return Ok(data.id);
-    } catch (err) {
-        return Err(`Failed to add paper: ${extractMessage(err)}`);
-    }
+    )
+}
+
+export const chunkPaper = async(paperEntry: PaperEntry, paperEntryUuid: string): Promise<Result<string[]>> => {
+    return safeFetch(
+        "chunk paper",
+        z.object({ chunks: z.array(z.string()) }),
+        "/api/weaviate/paper/chunk",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ paperEntry, paperEntryUuid }),
+        }
+    ).then(res => match(res, {
+        onSuccess: (data: { chunks: string[] }) => Ok(data.chunks),
+        onError: (msg: string) => Err(msg),
+    }));
+}
+
+export const fetchAllChunks = async (): Promise<Result<PaperChunk[]>> => {
+    return safeFetch(
+        "all chunks",
+        z.array(PaperChunkSchema),
+        "/api/weaviate/paper/chunk",
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
 }

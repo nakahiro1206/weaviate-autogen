@@ -4,6 +4,7 @@ import { getPaperCollection, getPaperChunkCollection } from "./client";
 import { PaperEntry } from "@/types/paper";
 import { Ok, Err, Result } from "@/lib/result";
 import { getChunksMaxChunkWithOverlap } from "@/lib/chunking";
+import { PaperChunk } from "@/types/paper";
 // Quantization?
 
 // Upload paper to Weaviate
@@ -61,5 +62,24 @@ export const addPaperChunk = async (
     return Ok(uuids);
   } catch (err) {
     return Err(`Failed to add paper chunk: ${extractMessage(err)}`);
+  }
+};
+
+export const getAllChunks = async (): Promise<Result<PaperChunk[]>> => {
+  try {
+    const paperChunkCollection = await getPaperChunkCollection();
+    const iter = paperChunkCollection.iterator();
+    const chunks: PaperChunk[] = [];
+    for await (const item of iter) {
+      chunks.push({
+        text: item.properties.chunk as string,
+        paperId: item.properties.paperId as string,
+        paperTitle: item.properties.paperTitle as string,
+        chunkIndex: item.properties.chunkIndex as number,
+      });
+    }
+    return Ok(chunks);
+  } catch (err) {
+    return Err(`Failed to get all chunks: ${extractMessage(err)}`);
   }
 };

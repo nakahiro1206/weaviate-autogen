@@ -4,16 +4,18 @@ import {
   ChangeEventHandler,
   useRef,
   useState,
+  useEffect,
 } from "react";
-import { addPaper } from "@/lib/weaviate-client/insert";
+import { addPaper } from "@/service/paper";
 import { summarizeDocument } from "@/openai/summary";
-import { parsePDF } from "@/service/parse-pdf";
+import { parsePdf as parsePdfService } from "@/service/parse-pdf";
 import { Button } from "@/components/ui/button";
 import { SubmitForm } from "@/components/summarize/custom-dialog";
 import { PlusIcon } from "@/components/icons/plus";
 import { SubmitIcon } from "@/components/icons/submit";
 import { PaperInfo } from "@/types/paper";
 import { match } from "@/lib/result";
+import { toast } from "sonner"
 
 export const Summarize: FC = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
@@ -42,24 +44,34 @@ export const Summarize: FC = () => {
     inputRef.current?.click();
   };
 
-  const summarize = async () => {
+  const parsePdf = async () => {
     if (!file) return;
     // body size, PDF validation
     // Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     const encoded = Buffer.from(await file.arrayBuffer()).toString("base64");
     setEncoded(encoded);
-    const res = await parsePDF({ file });
-    switch (res.__typename) {
-      case "ParsePdfOutput":
-        setText(res.text);
-        const summary = await summarizeDocument(res.text);
-        setSummary(summary);
-        break;
-      case "Err":
-        alert("Error parsing PDF");
-        break;
-    }
+    const res = await parsePdfService(file);
+    match(res, {
+      onSuccess: (data) => {
+        setText(data.text);
+      },
+      onError: (message) => {
+        toast.error(message);
+      },
+    });
   };
+
+  const summarize = async (text: string) => {
+    const summary = await summarizeDocument(text);
+    match(summary, {
+      onSuccess: (data) => {
+        setSummary(data);
+      },
+      onError: (message) => {
+        toast.error(message);
+      },
+    });
+  }
 
   const add = async (data: PaperInfo): Promise<void> => {
     if (encoded === null || summary === null) {
@@ -73,13 +85,19 @@ export const Summarize: FC = () => {
     });
     match(res, {
       onSuccess: (data) => {
-        alert(data);
+        toast.success(`Paper added. id: ${data.id}`);
       },
       onError: (message) => {
-        alert(message);
+        toast.error(message);
       },
     });
   };
+
+  useEffect(() => {
+    if (text) {
+      summarize(text);
+    }
+  }, [text]);
 
   return (
     <div className="w-full flex">
@@ -103,7 +121,7 @@ export const Summarize: FC = () => {
         })}
       </div>
       <div className="w-3/4 h-[calc(100vh)] flex flex-col gap-2 p-4">
-        <div className="w-full px-16  flex flex-col gap-2">
+        <div className="w-full px-16 flex flex-col gap-2 flex-1 overflow-hidden">
           <div className="w-full pb-4">
             <div className="border-b-1 border-sky-800 text-2xl font-extrabold text-sky-600">
               Let's Summarize Academic Paper!
@@ -133,15 +151,15 @@ export const Summarize: FC = () => {
             {file && isValidFile(file) && (
               <button
                 className="w-10 h-10 flex flex-col justify-center items-center rounded-lg p-1 bg-sky-500 hover:border-2 hover:border-solid hover:border-sky-600"
-                onClick={summarize}
+                onClick={parsePdf}
               >
                 <SubmitIcon className="text-white" />
               </button>
             )}
           </div>
-          <div className="w-full rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
+          <div className="w-full flex-grow overflow-y-auto rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
             {summary ? (
-              <div>{summary}</div>
+              <div className="text-left whitespace-pre-wrap">{summary}</div>
             ) : (
               <div>Let's upload a paper first!</div>
             )}

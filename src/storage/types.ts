@@ -17,10 +17,10 @@ export type GetAllPapersResult = z.infer<typeof GetAllPapersResultSchema>;
 
 export type AddPaperInput = PaperEntry;
 
-export type AddPaperResponse = {
-  __typename: "AddPaperResponse";
-  id: string;
-};
+export const AddPaperResponseSchema = z.object({
+  id: z.string(),
+});
+export type AddPaperResponse = z.infer<typeof AddPaperResponseSchema>;
 
 export type SearchSimilarInput = {
   query: string;

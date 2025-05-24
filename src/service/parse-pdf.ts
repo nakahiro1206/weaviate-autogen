@@ -1,40 +1,18 @@
-export type ParsePdfInput = {
-  file: File;
-};
+import { Result, safeFetch } from "@/lib/result";
+import { ParsePdfOutput, ParsePdfOutputSchema } from "@/types/parse-pdf";
 
-export type ParsePdfOutput = {
-  __typename: "ParsePdfOutput";
-  text: string;
-};
-
-export type Err = {
-  __typename: "Err";
-  message: string;
-};
-
-export const parsePDF = async (
-  input: ParsePdfInput,
-): Promise<ParsePdfOutput | Err> => {
-  const { file } = input;
-
+export const parsePdf = async (
+  file: File,
+): Promise<Result<ParsePdfOutput>> => {
   const formData = new FormData();
   formData.append("file", file);
-
-  try {
-    const res = await fetch("/api/parse-pdf", {
+  return safeFetch(
+    "parse pdf",
+    ParsePdfOutputSchema,
+    "/api/parse-pdf",
+    {
       method: "POST",
       body: formData,
-    });
-    if (!res.ok) {
-      throw new Error("Network response was not ok");
     }
-    const data = (await res.json()) as ParsePdfOutput;
-    return data;
-  } catch (error) {
-    console.error(error);
-    return {
-      __typename: "Err",
-      message: "Failed to parse PDF",
-    };
-  }
+  )
 };

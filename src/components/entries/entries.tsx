@@ -1,15 +1,17 @@
-
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { fetchAllPapers } from "@/service/paper";
-import { GetAllPapersResult } from "@/lib/weaviate-client/types";
+import { fetchAllPapers, chunkPaper } from "@/service/paper";
+import { GetAllPapersResult } from "@/storage/types";
 import { match } from "@/lib/result";
+import { toast } from "sonner";
+
 const PdfPreview = dynamic(() => import("./pdf-preview"), { ssr: false });
 
 export const Entries = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
   const [papers, setPapers] = useState<GetAllPapersResult>([]);
   const [activePdfEncoded, setActivePdfEncoded] = useState<string | null>(null);
+  const [chunkingPaperId, setChunkingPaperId] = useState<string | null>(null);
   const deactivatePdf = () => {
     setActivePdfEncoded(null);
   };
@@ -23,12 +25,27 @@ export const Entries = () => {
             setPapers(data);
         },
         onError: (msg) => {
-            alert(msg);
+            toast.error(msg);
         },
       })
     };
     getAll();
   }, []);
+
+  const handleChunk = async (paper: GetAllPapersResult[0]) => {
+    setChunkingPaperId(paper.metadata.uuid);
+    const res = await chunkPaper(paper, paper.metadata.uuid);
+    match(res, {
+      onSuccess: (chunks) => {
+        toast.success(`Successfully chunked paper into ${chunks.length} chunks`);
+        setChunkingPaperId(null);
+      },
+      onError: (msg) => {
+        toast.error(`Failed to chunk paper: ${msg}`);
+        setChunkingPaperId(null);
+      },
+    });
+  };
 
   return (
     <div className="w-full flex">
@@ -52,11 +69,17 @@ export const Entries = () => {
         })}
       </div>
       <div className="w-3/4 h-[calc(100vh)] flex flex-col gap-2 p-4">
-        <div className="w-full px-16  flex flex-col gap-2">
-          <div className="w-full pb-4">
+        <div className="w-full px-16 flex flex-col gap-2">
+          <div className="w-full pb-4 flex justify-between items-center">
             <div className="border-b-1 border-sky-800 text-2xl font-extrabold text-sky-600">
               Let's Summarize Academic Paper!
             </div>
+            <a
+              href="/chunks"
+              className="text-sky-600 hover:text-sky-800 font-medium"
+            >
+              View Chunks Gallery
+            </a>
           </div>
         </div>
         <div className="w-full overflow-x-auto">
@@ -85,12 +108,21 @@ export const Entries = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => setActivePdfEncoded(item.encoded)}
-                      className="text-sky-600 hover:text-sky-900"
-                    >
-                      Preview
-                    </button>
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => setActivePdfEncoded(item.encoded)}
+                        className="text-sky-600 hover:text-sky-900"
+                      >
+                        Preview
+                      </button>
+                      <button
+                        onClick={() => handleChunk(item)}
+                        disabled={chunkingPaperId === item.metadata.uuid}
+                        className={`text-sky-600 hover:text-sky-900 ${chunkingPaperId === item.metadata.uuid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {chunkingPaperId === item.metadata.uuid ? 'Chunking...' : 'Chunk'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
