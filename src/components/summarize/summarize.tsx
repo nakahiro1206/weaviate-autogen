@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { addPaper } from "@/service/paper";
-import { summarizeDocument } from "@/openai/summary";
+import { summarizeDocument } from "@/lib/openai/summary";
 import { parsePdf as parsePdfService } from "@/service/parse-pdf";
 import { Button } from "@/components/ui/button";
 import { SubmitForm } from "@/components/summarize/custom-dialog";
