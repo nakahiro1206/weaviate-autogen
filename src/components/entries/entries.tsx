@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { fetchAllPapers, chunkPaper } from "@/service/paper";
-import { GetAllPapersResult } from "@/storage/types";
+import { GetAllPapersResult } from "@/lib/weaviate/types";
 import { match } from "@/lib/result";
 import { toast } from "sonner";
 

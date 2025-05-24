@@ -1,7 +1,7 @@
 
 import { useState } from "react";
-import { searchSimilar } from "@/storage/similarity-search";
-import { RetrieveResult } from "@/storage/types";
+import { searchSimilar } from "@/lib/weaviate/similarity-search";
+import { RetrieveResult } from "@/lib/weaviate/types";
 
 export const Retrieval = () => {
   const history = ["paper 1", "paper 2", "paper 3"];

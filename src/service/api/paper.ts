@@ -1,7 +1,7 @@
 import { Err, Ok, Result, transform } from "@/lib/result";
-import { getAllPapers } from "@/storage/fetch";
-import { addPaper as addPaperWeaviate } from "@/storage/insert";
-import { AddPaperResponse, GetAllPapersResult } from "@/storage/types";
+import { getAllPapers } from "@/lib/weaviate/fetch";
+import { addPaper as addPaperWeaviate } from "@/lib/weaviate/insert";
+import { AddPaperResponse, GetAllPapersResult } from "@/lib/weaviate/types";
 import { PaperEntrySchema } from "@/types/paper";
 
 export const fetchAllPapersApi = async (): Promise<Result<GetAllPapersResult>> => {

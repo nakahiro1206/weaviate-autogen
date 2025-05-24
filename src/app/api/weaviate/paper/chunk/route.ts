@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addPaperChunk, getAllChunks } from "@/storage/insert";
+import { addPaperChunk, getAllChunks } from "@/lib/weaviate/insert";
 import { match } from "@/lib/result";
 import { PaperChunk } from "@/types/paper";
 

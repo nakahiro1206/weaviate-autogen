@@ -1,5 +1,5 @@
 import { Err, Ok, Result, safeFetch, match } from "@/lib/result";
-import { AddPaperResponse, AddPaperResponseSchema, extractMessage, GetAllPapersResult, GetAllPapersResultSchema } from "@/storage/types";
+import { AddPaperResponse, AddPaperResponseSchema, extractMessage, GetAllPapersResult, GetAllPapersResultSchema } from "@/lib/weaviate/types";
 import { PaperEntry, PaperChunk, PaperChunkSchema } from "@/types/paper";
 import { z } from "zod";
 
