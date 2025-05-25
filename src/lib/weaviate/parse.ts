@@ -1,10 +1,9 @@
-import { PaperEntry } from "@/types/paper";
+import { PaperEntry, PaperEntrySchema } from "@/service/entities/paper";
 
 import { WeaviateNonGenericObject } from "weaviate-client";
 
 import { Properties } from "weaviate-client";
 
-import { PaperEntrySchema } from "@/types/paper";
 import { WeaviateGenericObject } from "weaviate-client";
 import { Result, Ok, Err } from "@/lib/result";
 

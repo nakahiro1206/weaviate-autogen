@@ -6,14 +6,14 @@ import {
   useState,
   useEffect,
 } from "react";
-import { addPaper } from "@/service/paper";
+import { paperService, pdfService } from "@/service";
+import { PaperInfo } from "@/service/entities/paper";
+
 import { summarizeDocument } from "@/lib/openai/summary";
-import { parsePdf as parsePdfService } from "@/service/parse-pdf";
 import { Button } from "@/components/ui/button";
 import { SubmitForm } from "@/components/summarize/custom-dialog";
 import { PlusIcon } from "@/components/icons/plus";
 import { SubmitIcon } from "@/components/icons/submit";
-import { PaperInfo } from "@/types/paper";
 import { match } from "@/lib/result";
 import { toast } from "sonner"
 
@@ -50,7 +50,7 @@ export const Summarize: FC = () => {
     // Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     const encoded = Buffer.from(await file.arrayBuffer()).toString("base64");
     setEncoded(encoded);
-    const res = await parsePdfService(file);
+    const res = await pdfService.extractText(file);
     match(res, {
       onSuccess: (data) => {
         setText(data.text);
@@ -77,7 +77,7 @@ export const Summarize: FC = () => {
     if (encoded === null || summary === null) {
       return;
     }
-    const res = await addPaper({
+    const res = await paperService.addPaper({
       summary: summary,
       comment: "This is really impressive literacture",
       encoded: encoded,

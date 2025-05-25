@@ -1,15 +1,14 @@
 "use server";
-import { AddPaperInput, extractMessage } from "./types";
+import { extractMessage, PaperEntry } from "@/service/entities/paper";
+import { PaperChunk } from "@/service/entities/chunk";
 import { getPaperCollection, getPaperChunkCollection } from "./client";
-import { PaperEntry } from "@/types/paper";
 import { Ok, Err, Result } from "@/lib/result";
 import { getChunksMaxChunkWithOverlap } from "@/lib/chunking";
-import { PaperChunk } from "@/types/paper";
 // Quantization?
 
 // Upload paper to Weaviate
 export const addPaper = async (
-  paper: AddPaperInput,
+  paper: PaperEntry,
 ): Promise<Result<string>> => {
   try {
     const paperCollection = await getPaperCollection();

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { searchSimilar } from "@/lib/weaviate/similarity-search";
-import { RetrieveResult } from "@/lib/weaviate/types";
+import { RetrieveResult } from "@/service/entities/paper";
 
 export const Retrieval = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
@@ -78,11 +78,11 @@ export const Retrieval = () => {
                 >
                   <div className="w-full h-full flex items-center justify-center">
                     <div>TITLE</div>
-                    <div>{item.title}</div>
+                    <div>{item.info.title}</div>
                     <div>AUTHORS</div>
-                    <div>{item.authors}</div>
+                    <div>{item.info.author}</div>
                     <div>ABSTRACT</div>
-                    <div>{item.abstract}</div>
+                    <div>{item.info.abstract}</div>
                   </div>
                 </div>
               );

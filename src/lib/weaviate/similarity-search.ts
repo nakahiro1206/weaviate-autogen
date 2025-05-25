@@ -5,7 +5,7 @@ import {
   SearchSimilarInput,
   SearchSimilarResponse,
   RetrieveResult,
-} from "./types";
+} from "@/service/entities/paper";
 import { getPaperCollection } from "./client";
 import { parseWeaviateObject } from "./parse";
 
