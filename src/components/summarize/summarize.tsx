@@ -73,14 +73,15 @@ export const Summarize: FC = () => {
     });
   }
 
-  const add = async (data: PaperInfo): Promise<void> => {
-    if (encoded === null || summary === null) {
+  const add = async (data: PaperInfo, comment?: string): Promise<void> => {
+    if (encoded === null || summary === null || text === null ) {
       return;
     }
     const res = await paperService.addPaper({
       summary: summary,
-      comment: "This is really impressive literacture",
+      comment: comment,
       encoded: encoded,
+      fullText: text,
       info: data,
     });
     match(res, {

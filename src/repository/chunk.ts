@@ -14,7 +14,7 @@ export class ChunkRepository implements ChunkService {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ paperEntry, paperEntryUuid }),
+                body: JSON.stringify({ paperEntry, paperEntryUuid}),
             }
         ).then(res => match(res, {
             onSuccess: (data: { chunks: string[] }) => Ok(data.chunks),

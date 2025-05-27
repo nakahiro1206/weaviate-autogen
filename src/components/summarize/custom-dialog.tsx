@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 
 type Props = {
   trigger: React.JSX.Element;
-  submitFunction: (data: PaperInfo) => void;
+  submitFunction: (data: PaperInfo, comment?: string) => void;
 };
 type ParseResult = {
   data?: PaperInfo;
@@ -28,6 +28,7 @@ export const SubmitForm: FC<Props> = (props) => {
   const [open, setOpen] = useState(false);
   const [parsedData, setParsedData] = useState<ParseResult | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
   const parse = () => {
     const input = inputRef.current?.value;
     if (!input) return;
@@ -43,7 +44,7 @@ export const SubmitForm: FC<Props> = (props) => {
   };
   const submitAction = () => {
     if (parsedData?.data) {
-      submitFunction(parsedData.data);
+      submitFunction(parsedData.data, commentRef.current?.value);
     }
     setOpen(false);
   };
@@ -115,6 +116,10 @@ export const SubmitForm: FC<Props> = (props) => {
                   </Table>
                 </div>
               )}
+            </div>
+            <div className="col-span-4">
+              <Label htmlFor="comment">Comment</Label>
+              <Textarea id="comment" ref={commentRef} placeholder="Comment" className="col-span-4" />
             </div>
           </div>
         </div>

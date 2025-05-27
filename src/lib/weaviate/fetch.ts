@@ -1,4 +1,4 @@
-import { GetAllPapersResult, extractMessage } from "@/service/entities/paper";
+import { GetAllPapersResult } from "@/service/entities/paper";
 import { getPaperCollection } from "./client";
 import { parseWeaviateObject } from "./parse";
 import { match, Ok, Err, Result } from "@/lib/result";
@@ -26,6 +26,6 @@ export const getAllPapers = async (): Promise<Result<GetAllPapersResult>> => {
       }
       return Ok(res);
     } catch (err) {
-      return Err(`Failed to get all papers: ${extractMessage(err)}`);
+      return Err(`Failed to get all papers: ${err}`);
     }
   };

@@ -1,7 +1,7 @@
-import { PaperInfo } from "@/types/paper";
+import { PaperInfo } from "@/service/entities/paper";
 
 const neverReach = (_: never) => {
-  throw new Error("Not implemented");
+  throw new Error("Should not reach here");
 };
 
 type ParseSuccess = {

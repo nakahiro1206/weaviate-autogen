@@ -1,21 +1,16 @@
 "use server";
 import {
-  Err,
-  extractMessage,
-  SearchSimilarInput,
-  SearchSimilarResponse,
   RetrieveResult,
 } from "@/service/entities/paper";
 import { getPaperCollection } from "./client";
 import { parseWeaviateObject } from "./parse";
+import { Result, Ok, Err } from "../result";
 
-export const searchSimilar = async ({
-  query,
-}: SearchSimilarInput): Promise<SearchSimilarResponse | Err> => {
+export const searchSimilar = async (query: string): Promise<Result<RetrieveResult[]>> => {
   try {
     const paperCollection = await getPaperCollection();
     const result = await paperCollection.query.nearText([query], {
-      limit: 3,
+      limit: 10,
     });
     console.log(result);
     const r: RetrieveResult[] = result.objects.map((item) => {
@@ -33,12 +28,9 @@ export const searchSimilar = async ({
       }
     }).filter((item) => item !== null);
 
-    return {
-      __typename: "SearchSimilarResponse",
-      results: r,
-    };
+    return Ok(r);
   } catch (err) {
-    return extractMessage(err);
+    return Err(`Failed to search similar: ${err}`);
   }
 };
 

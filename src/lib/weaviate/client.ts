@@ -58,6 +58,7 @@ export const createPaperCollection = async () => {
       { name: "summary", dataType: dataType.TEXT },
       { name: "comment", dataType: dataType.TEXT },
       { name: "encoded", dataType: dataType.TEXT },
+      { name: "fullText", dataType: dataType.TEXT },
       { name: "info", dataType: dataType.OBJECT, nestedProperties: [
         { name: "type", dataType: dataType.TEXT },
         { name: "id", dataType: dataType.TEXT },

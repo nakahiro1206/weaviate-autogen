@@ -1,5 +1,5 @@
 import { Result, safeFetch } from "@/lib/result";
-import { AddPaperResponse, AddPaperResponseSchema, GetAllPapersResult, GetAllPapersResultSchema } from "@/service/entities/paper";
+import { AddPaperResponse, AddPaperResponseSchema, GetAllPapersResult, GetAllPapersResultSchema, RetrieveResult, RetrieveResultArraySchema, RetrieveResultSchema } from "@/service/entities/paper";
 import { PaperService } from "@/service/interface/paper";
 import { PaperEntry } from "@/service/entities/paper";
 
@@ -28,6 +28,20 @@ export class PaperRepository implements PaperService {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(paper),
+            }
+        )
+    }
+    async searchSimilar(query: string): Promise<Result<RetrieveResult[]>> {
+        return safeFetch(
+            "search similar",
+            RetrieveResultArraySchema,
+            "/api/paper/search",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ query }),
             }
         )
     }
