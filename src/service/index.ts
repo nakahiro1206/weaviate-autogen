@@ -1,7 +1,18 @@
-import { PaperRepository } from "@/repository/paper";
-import { PdfRepository } from "@/repository/pdf";
-import { ChunkRepository } from "@/repository/chunk";
+import { PaperRepositoryImpl } from "@/domain/repository/paper";
+import { PdfRepositoryImpl } from "@/domain/repository/pdf";
+import { ChunkRepositoryImpl } from "@/domain/repository/chunk";
+import { ChunkUseCase, PaperUseCase, PdfUseCase } from "./client";
 
-export const paperService = new PaperRepository()
-export const pdfService = new PdfRepository()
-export const chunkService = new ChunkRepository()
+const paperRepository = new PaperRepositoryImpl()
+const pdfRepository = new PdfRepositoryImpl()
+const chunkRepository = new ChunkRepositoryImpl()
+
+const paperUseCase = new PaperUseCase(paperRepository)
+const pdfUseCase = new PdfUseCase(pdfRepository)
+const chunkUseCase = new ChunkUseCase(chunkRepository)
+
+export {
+    paperUseCase,
+    pdfUseCase,
+    chunkUseCase,
+}

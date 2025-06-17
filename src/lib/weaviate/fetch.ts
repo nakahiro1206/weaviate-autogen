@@ -1,4 +1,4 @@
-import { GetAllPapersResult } from "@/service/entities/paper";
+import { GetAllPapersResult } from "@/domain/entities/paper";
 import { getPaperCollection } from "./client";
 import { parseWeaviateObject } from "./parse";
 import { match, Ok, Err, Result } from "@/lib/result";

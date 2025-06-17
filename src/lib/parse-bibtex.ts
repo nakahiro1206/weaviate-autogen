@@ -1,4 +1,4 @@
-import { PaperInfo } from "@/service/entities/paper";
+import { PaperInfo } from "@/domain/entities/paper";
 
 const neverReach = (_: never) => {
   throw new Error("Should not reach here");

@@ -59,7 +59,7 @@ export const tryCatch = <T>(fn: () => T): Result<T> => {
         return Err(parsed.data.message);
     }
 }
-
+type s = Omit<RequestInit, "body" | "method">;
 export const safeFetch = async<Schema extends ZodTypeAny>(
     target: string, 
     zodSchema: Schema,

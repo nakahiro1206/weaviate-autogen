@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { RetrieveResult } from "@/service/entities/paper";
+import { RetrieveResult } from "@/domain/entities/paper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {

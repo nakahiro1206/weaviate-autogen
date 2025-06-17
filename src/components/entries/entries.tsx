@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { paperService, chunkService } from "@/service";
-import { GetAllPapersResult } from "@/service/entities/paper";
+import { paperUseCase, chunkUseCase } from "@/service";
+import { GetAllPapersResult } from "@/domain/entities/paper";
 import { match } from "@/lib/result";
 import { toast } from "sonner";
 
@@ -19,7 +19,7 @@ export const Entries = () => {
   useEffect(() => {
     // if it has error, no card will be shown
     const getAll = async () => {
-      const res = await paperService.fetchAllPapers();
+      const res = await paperUseCase.fetchAllPapers();
       match(res, {
         onSuccess: (data) => {
             setPapers(data);
@@ -34,7 +34,7 @@ export const Entries = () => {
 
   const handleChunk = async (paper: GetAllPapersResult[0]) => {
     setChunkingPaperId(paper.metadata.uuid);
-    const res = await chunkService.chunkPaper(paper, paper.metadata.uuid);
+    const res = await chunkUseCase.chunkPaper(paper, paper.metadata.uuid);
     match(res, {
       onSuccess: (chunks) => {
         toast.success(`Successfully chunked paper into ${chunks.length} chunks`);

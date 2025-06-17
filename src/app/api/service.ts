@@ -1,7 +1,12 @@
-import { ApiPdfRepository } from "@/repository/api/pdf";
-import { ApiPaperRepository } from "@/repository/api/paper";
-import { ApiChunkRepository } from "@/repository/api/chunk";
+import { ApiPdfRepositoryImpl } from "@/domain/repository/api/pdf";
+import { ApiPaperRepositoryImpl } from "@/domain/repository/api/paper";
+import { ApiChunkRepositoryImpl } from "@/domain/repository/api/chunk";
+import { ApiChunkUseCase, ApiPaperUseCase, ApiPdfUseCase } from "@/service/server";
 
-export const apiPdfService = new ApiPdfRepository()
-export const apiPaperService = new ApiPaperRepository()
-export const apiChunkService = new ApiChunkRepository()
+const apiPdfRepository = new ApiPdfRepositoryImpl()
+const apiPaperRepository = new ApiPaperRepositoryImpl()
+const apiChunkRepository = new ApiChunkRepositoryImpl()
+
+export const apiPdfUseCase = new ApiPdfUseCase(apiPdfRepository)
+export const apiPaperUseCase = new ApiPaperUseCase(apiPaperRepository)
+export const apiChunkUseCase = new ApiChunkUseCase(apiChunkRepository)

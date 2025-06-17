@@ -1,7 +1,7 @@
 "use server";
 import {
   RetrieveResult,
-} from "@/service/entities/paper";
+} from "@/domain/entities/paper";
 import { getPaperCollection } from "./client";
 import { parseWeaviateObject } from "./parse";
 import { Result, Ok, Err } from "../result";
@@ -10,6 +10,7 @@ export const searchSimilar = async (query: string): Promise<Result<RetrieveResul
   try {
     const paperCollection = await getPaperCollection();
     const result = await paperCollection.query.nearText([query], {
+      targetVector: ["summary"], 
       limit: 10,
     });
     console.log(result);

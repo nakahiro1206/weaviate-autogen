@@ -19,6 +19,7 @@ export const PaperEntrySchema = z.object({
     summary: z.string(),
     comment: z.string().optional(),
     encoded: z.string(),
+    // fileId: z.string(),
     fullText: z.string(),
     info: PaperInfoSchema,
 });

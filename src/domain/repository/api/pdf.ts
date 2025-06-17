@@ -1,9 +1,9 @@
 import { Err, Ok, Result } from "@/lib/result";
-import { ParsePdfOutput } from "@/service/entities/pdf";
-import { ApiPdfService } from "@/service/interface/pdf";
+import { ParsePdfOutput } from "@/domain/entities/pdf";
 import PdfParse from "pdf-parse";
+import { ApiPdfRepository } from "../interface";
 
-export class ApiPdfRepository implements ApiPdfService {
+export class ApiPdfRepositoryImpl implements ApiPdfRepository {
     async extractText(file: File): Promise<Result<ParsePdfOutput>> {
         try {
             // Convert File to Buffer

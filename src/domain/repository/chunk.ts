@@ -1,9 +1,9 @@
 import { Err, Ok, Result, safeFetch, match } from "@/lib/result";
-import { PaperChunk, ChunkResultSchema, PaperChunksSchema } from "@/service/entities/chunk";
-import { PaperEntry } from "@/service/entities/paper";
-import { ChunkService } from "@/service/interface/chunk";
+import { PaperChunk, ChunkResultSchema, PaperChunksSchema } from "@/domain/entities/chunk";
+import { PaperEntry } from "@/domain/entities/paper";
+import { ChunkRepository } from "./interface";
 
-export class ChunkRepository implements ChunkService {
+export class ChunkRepositoryImpl implements ChunkRepository {
     async chunkPaper(paperEntry: PaperEntry, paperEntryUuid: string): Promise<Result<string[]>> {
         return safeFetch(
             "chunk paper",

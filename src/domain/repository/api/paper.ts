@@ -1,13 +1,13 @@
 import { Err, Ok, Result, transform } from "@/lib/result";
-import { AddPaperResponse, GetAllPapersResult, RetrieveResult } from "@/service/entities/paper";
-import { ApiPaperService } from "@/service/interface/paper";
-import { PaperEntry } from "@/service/entities/paper";
+import { AddPaperResponse, GetAllPapersResult, RetrieveResult } from "@/domain/entities/paper";
+import { ApiPaperRepository } from "../interface";
+import { PaperEntry } from "@/domain/entities/paper";
 import { getAllPapers } from "@/lib/weaviate/fetch";
 import { addPaper as addPaperWeaviate } from "@/lib/weaviate/insert";
 import { searchSimilar } from "@/lib/weaviate/similarity-search";
 
 
-export class ApiPaperRepository implements ApiPaperService {
+export class ApiPaperRepositoryImpl implements ApiPaperRepository {
     async fetchAllPapers(): Promise<Result<GetAllPapersResult>> {
         return getAllPapers();
     }

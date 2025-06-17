@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import { paperService } from "@/service";
-import { RetrieveResult } from "@/service/entities/paper";
+import { paperUseCase } from "@/service";
+import { RetrieveResult } from "@/domain/entities/paper";
 import { toast } from "sonner";
 import { match } from "@/lib/result";
 import {
@@ -54,7 +54,7 @@ export const Retrieval = () => {
       toast.error("Please enter a query");
       return;
     }
-    const res = await paperService.searchSimilar(query);
+    const res = await paperUseCase.searchSimilar(query);
     match(res, {
       onSuccess: (data) => {
         setResults(data);

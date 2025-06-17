@@ -1,8 +1,8 @@
 import { Result, safeFetch } from "@/lib/result";
-import { ParsePdfOutput, ParsePdfOutputSchema } from "@/service/entities/pdf";
-import { PdfService } from "@/service/interface/pdf";
+import { ParsePdfOutput, ParsePdfOutputSchema } from "@/domain/entities/pdf";
+import { PdfRepository } from "./interface";
 
-export class PdfRepository implements PdfService {
+export class PdfRepositoryImpl implements PdfRepository {
     async extractText(file: File): Promise<Result<ParsePdfOutput>> {
         const formData = new FormData();
         formData.append("file", file);

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { apiChunkService } from "../service";
+import { apiChunkUseCase } from "../service";
 import { match, tryCatch } from "@/lib/result";
-import { PaperChunk } from "@/service/entities/chunk";
-import { PaperEntrySchema } from "@/service/entities/paper";
+import { PaperChunk } from "@/domain/entities/chunk";
+import { PaperEntrySchema } from "@/domain/entities/paper";
 import { z } from "zod";
 
 export async function GET() {
-  const res = await apiChunkService.fetchAllChunks();
+  const res = await apiChunkUseCase.fetchAllChunks();
   return match<PaperChunk[], NextResponse>(res, {
     onSuccess: (data) => NextResponse.json(data),
     onError: (message) => NextResponse.json({ error: message }, { status: 500 }),
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
   const { paperEntry, paperEntryUuid } = parsed.data;
-  const res = await apiChunkService.chunkPaper(paperEntry, paperEntryUuid);
+  const res = await apiChunkUseCase.chunkPaper(paperEntry, paperEntryUuid);
   return match<string[], NextResponse>(res, {
     onSuccess: (data) => NextResponse.json({ chunks: data }),
     onError: (message) => NextResponse.json({ error: message }, { status: 500 }),

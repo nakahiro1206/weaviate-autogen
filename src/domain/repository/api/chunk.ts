@@ -1,10 +1,10 @@
 import { Result } from "@/lib/result";
-import { PaperChunk } from "@/service/entities/chunk";
-import { PaperEntry } from "@/service/entities/paper";
-import { ApiChunkService } from "@/service/interface/chunk";
+import { PaperChunk } from "@/domain/entities/chunk";
+import { PaperEntry } from "@/domain/entities/paper";
 import { getAllChunks, addPaperChunk } from "@/lib/weaviate/insert";
+import { ApiChunkRepository } from "../interface";
 
-export class ApiChunkRepository implements ApiChunkService {
+export class ApiChunkRepositoryImpl implements ApiChunkRepository {
     async fetchAllChunks(): Promise<Result<PaperChunk[]>> {
         return getAllChunks();
     }

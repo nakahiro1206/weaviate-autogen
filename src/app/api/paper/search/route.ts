@@ -1,4 +1,4 @@
-import { apiPaperService } from "@/app/api/service";
+import { apiPaperUseCase } from "@/app/api/service";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  const res = await apiPaperService.searchSimilar(parsed.data.query);
+  const res = await apiPaperUseCase.searchSimilar(parsed.data.query);
   switch (res.type) {
     case "success":
       return NextResponse.json(res.data);

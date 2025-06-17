@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { match, tryCatch } from "@/lib/result";
-import { PaperEntrySchema } from "@/service/entities/paper";
-import { apiPaperService } from "../service";
+import { PaperEntrySchema } from "@/domain/entities/paper";
+import { apiPaperUseCase } from "../service";
 
 export async function GET(req: Request) {
-  const res = await apiPaperService.fetchAllPapers();
+  const res = await apiPaperUseCase.fetchAllPapers();
   switch (res.type) {
     case "success":
       return NextResponse.json(res.data);
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  const res = await apiPaperService.addPaper(parsed.data);
+  const res = await apiPaperUseCase.addPaper(parsed.data);
   return match<{ id: string }, NextResponse>(res, {
     onSuccess: (data) => NextResponse.json(data),
     onError: (message) => NextResponse.json({ error: message }, { status: 500 }),
