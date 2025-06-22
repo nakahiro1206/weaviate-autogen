@@ -18,13 +18,15 @@ import { toast } from "sonner"
 
 import { extractText } from "@/lib/api-helper/pdf";
 import { addPaper } from "@/lib/api-helper/paper";
+import { useSummarizeStream } from "@/lib/hooks/use-summarize-stream";
 
 export const Summarize: FC = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
 
   const [text, setText] = useState<string | null>(null);
-  const [summary, setSummary] = useState<string | null>(null);
   const [encoded, setEncoded] = useState<string | null>(null);
+
+  const { summary: summaryStream, isStreaming, error, startStream, reset } = useSummarizeStream();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -64,23 +66,15 @@ export const Summarize: FC = () => {
   };
 
   const summarize = async (text: string) => {
-    const summary = await summarizeDocument(text);
-    match(summary, {
-      onSuccess: (data) => {
-        setSummary(data);
-      },
-      onError: (message) => {
-        toast.error(message);
-      },
-    });
+    await startStream(text);
   }
 
   const add = async (data: PaperInfo, comment?: string): Promise<void> => {
-    if (encoded === null || summary === null || text === null ) {
+    if (encoded === null || summaryStream === null || text === null ) {
       return;
     }
     const res = await addPaper({
-      summary: summary,
+      summary: summaryStream,
       comment: comment,
       encoded: encoded,
       fullText: text,
@@ -160,15 +154,23 @@ export const Summarize: FC = () => {
               </button>
             )}
           </div>
-          <div className="w-full flex-grow overflow-y-auto rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
-            {summary ? (
-              <div className="text-left whitespace-pre-wrap">{summary}</div>
-            ) : (
+          {text && (
+            <div className="w-full flex flex-row gap-2 p-2 line-clamp-3">
+              {text}
+            </div>
+          )}
+          {summaryStream && (
+            <div className="w-full flex-grow overflow-y-auto rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
+              <div className="text-left whitespace-pre-wrap">{summaryStream}</div>
+            </div>
+          )}
+          {(summaryStream === "" && !text) && (
+            <div className="w-full flex-grow overflow-y-auto rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
               <div>Let's upload a paper first!</div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {summary && (
+          {summaryStream && (
             <div className="w-full flex flex-row justify-end">
               <SubmitForm
                 trigger={<Button>Save document!</Button>}
