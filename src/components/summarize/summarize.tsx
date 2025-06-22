@@ -16,7 +16,7 @@ import { SubmitIcon } from "@/components/icons/submit";
 import { match } from "@/lib/result";
 import { toast } from "sonner"
 
-import { extractText } from "@/service/client/pdf";
+import { extractText } from "@/lib/api-helper/pdf";
 import { addPaper } from "@/lib/api-helper/paper";
 
 export const Summarize: FC = () => {
