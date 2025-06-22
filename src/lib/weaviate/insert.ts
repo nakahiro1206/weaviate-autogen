@@ -1,9 +1,10 @@
 "use server";
 import { PaperEntry } from "@/models/paper";
-import { PaperChunk } from "@/models/chunk";
+import { PaperChunk, PaperChunkSchema } from "@/models/chunk";
 import { getPaperCollection, getPaperChunkCollection } from "./client";
 import { Ok, Err, Result } from "@/lib/result";
 import { getChunksFixedSizeWithOverlap } from "@/lib/chunking";
+import { adaptObjectToWeaviateProperties } from "./map";
 // Quantization?
 
 // Upload paper to Weaviate
@@ -50,12 +51,12 @@ export const addPaperChunk = async (
     const chunks = getChunksFixedSizeWithOverlap(paperEntry.fullText, 100, 0.2); // 100 words per chunk, 20% overlap
     const paperChunkCollection = await getPaperChunkCollection();
     const res = await paperChunkCollection.data.insertMany(chunks.map((chunk, index) => ({
-      properties: {
-        chunk: chunk,
+      properties: adaptObjectToWeaviateProperties(PaperChunkSchema, {
+        text: chunk,
         paperId: paperEntryUuid,
         paperTitle: paperEntry.info.title,
         chunkIndex: index,
-      },
+      })
     })));
     const uuids = res.allResponses.map((res) => {
       if (typeof res === 'string') {
@@ -76,12 +77,12 @@ export const getAllChunks = async (): Promise<Result<PaperChunk[]>> => {
     const iter = paperChunkCollection.iterator();
     const chunks: PaperChunk[] = [];
     for await (const item of iter) {
-      chunks.push({
-        text: item.properties.chunk as string,
-        paperId: item.properties.paperId as string,
-        paperTitle: item.properties.paperTitle as string,
-        chunkIndex: item.properties.chunkIndex as number,
-      });
+      const parsed = PaperChunkSchema.safeParse(item.properties);
+      if (!parsed.success) {
+        console.error(`Failed to parse paper chunk: ${parsed.error}`);
+        continue;
+      }
+      chunks.push(parsed.data);
     }
     return Ok(chunks);
   } catch (err) {

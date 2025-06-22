@@ -3,9 +3,11 @@
 "use server";
 import weaviate, {
     vectorizer,
-    dataType,
     WeaviateClient,
   } from "weaviate-client";
+import { mapZodSchemaToWeaviateProperties } from "./map";
+import { PaperEntrySchema, } from "@/models/paper";
+import { PaperChunkSchema } from "@/models/chunk";
 
 let clientInstance: WeaviateClient | null = null;
 
@@ -46,6 +48,10 @@ export const closeClient = async () => {
 export const createPaperCollection = async () => {
   const client = await getClient();
   console.log("createPaperCollection aaa");
+  
+  // Use the recursive schema mapping to get properties
+  const properties = mapZodSchemaToWeaviateProperties(PaperEntrySchema);
+  
   const collection = await client.collections.create({
     name: "Paper",
     vectorizers: [
@@ -55,25 +61,7 @@ export const createPaperCollection = async () => {
         // vectorIndexConfig: configure.vectorIndex.hnsw()   // (Optional) Set the vector index configuration
       }),
     ],
-    properties: [
-      { name: "summary", dataType: dataType.TEXT },
-      { name: "comment", dataType: dataType.TEXT },
-      { name: "encoded", dataType: dataType.TEXT },
-      { name: "fullText", dataType: dataType.TEXT },
-      { name: "info", dataType: dataType.OBJECT, nestedProperties: [
-        { name: "type", dataType: dataType.TEXT },
-        { name: "id", dataType: dataType.TEXT },
-        { name: "title", dataType: dataType.TEXT },
-        { name: "abstract", dataType: dataType.TEXT },
-        { name: "author", dataType: dataType.TEXT },
-        { name: "journal", dataType: dataType.TEXT },
-        { name: "volume", dataType: dataType.TEXT },
-        { name: "number", dataType: dataType.TEXT },
-        { name: "pages", dataType: dataType.TEXT },
-        { name: "year", dataType: dataType.TEXT },
-        { name: "publisher", dataType: dataType.TEXT },
-      ] },
-    ],
+    properties: properties,
   });
   console.log("createPaperCollection bbb");
   return collection;
@@ -90,20 +78,19 @@ export const getPaperCollection = async () => {
 
 export const createPaperChunkCollection = async () => {
   const client = await getClient();
+  
+  // Use the recursive schema mapping to get properties
+  const properties = mapZodSchemaToWeaviateProperties(PaperChunkSchema);
+  
   const collection = await client.collections.create({
     name: "PaperChunk",
     vectorizers: [
       vectorizer.text2VecOpenAI({
         name: "chunkEmbedding",
-        sourceProperties: ["chunk"],
+        sourceProperties: ["text"], // Updated to match the schema field name
       }),
     ],
-    properties: [
-      { name: "chunk", dataType: dataType.TEXT },
-      { name: "paperId", dataType: dataType.TEXT },
-      { name: "paperTitle", dataType: dataType.TEXT },
-      { name: "chunkIndex", dataType: dataType.NUMBER },
-    ],
+    properties: properties,
   });
   return collection;
 }

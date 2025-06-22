@@ -1,9 +1,9 @@
 "use server";
 import {
   RetrievedPaperEntry,
+  PaperEntrySchema,
 } from "@/models/paper";
 import { getPaperCollection } from "./client";
-import { parseWeaviateObject } from "./parse";
 import { Result, Ok, Err } from "../result";
 
 export const searchSimilar = async (query: string): Promise<Result<RetrievedPaperEntry[]>> => {
@@ -15,18 +15,17 @@ export const searchSimilar = async (query: string): Promise<Result<RetrievedPape
     });
     console.log(result);
     const r: RetrievedPaperEntry[] = result.objects.map((item) => {
-      const parsed = parseWeaviateObject(item);
-      switch (parsed.type) {
-        case "success":
-          return {
-            metadata: {
-              uuid: item.uuid,
-            },
-            ...parsed.data,
-          };
-        case "error":
-          return null;
+      const parsed = PaperEntrySchema.safeParse(item.properties);
+      if (!parsed.success) {
+        console.error(`Failed to parse paper: ${parsed.error}`);
+        return null;
       }
+      return {
+        metadata: {
+          uuid: item.uuid,
+        },
+        ...parsed.data,
+      };
     }).filter((item) => item !== null);
 
     return Ok(r);

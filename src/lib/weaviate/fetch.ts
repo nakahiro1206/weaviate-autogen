@@ -1,30 +1,21 @@
-import { GetAllPapersResult } from "@/models/paper";
 import { getPaperCollection } from "./client";
-import { parseWeaviateObject } from "./parse";
-import { match, Ok, Err, Result } from "@/lib/result";
+import { Ok, Err, Result } from "@/lib/result";
+import { PaperEntrySchema, RetrievedPaperEntry } from "@/models/paper";
 
-export const getAllPapers = async (): Promise<Result<GetAllPapersResult>> => {
+export const getAllPapers = async (): Promise<Result<RetrievedPaperEntry[]>> => {
     try {
       console.log("start");
       const paperCollection = await getPaperCollection();
       console.log("aaa");
       const iter = paperCollection.iterator();
-      const res: GetAllPapersResult = [];
+      const res: RetrievedPaperEntry[] = [];
       for await (const item of iter) {
-        const result = parseWeaviateObject(item);
-        match(result, {
-            onSuccess: (data) => {
-                res.push({
-                    metadata: {
-                        uuid: item.uuid,
-                    },
-                    ...data,
-                });
-            },
-            onError: (msg) => {
-                console.error(msg);
-            },
-        })
+        const parsed = PaperEntrySchema.safeParse(item.properties);
+        if (!parsed.success) {
+          console.error(`Failed to parse paper: ${parsed.error}`);
+          continue;
+        }
+        res.push({...parsed.data, metadata: {uuid: item.uuid}})
       }
       return Ok(res);
     } catch (err) {
