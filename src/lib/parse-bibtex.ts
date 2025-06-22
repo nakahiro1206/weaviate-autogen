@@ -1,28 +1,13 @@
 import { PaperInfo } from "@/models/paper";
+import {Ok, Err, Result, match} from "@/lib/result";
 
-const neverReach = (_: never) => {
-  throw new Error("Should not reach here");
-};
-
-type ParseSuccess = {
-  __typename: "ParseSuccess";
-  data: Record<string, string>;
-};
-type ParseError = {
-  __typename: "ParseError";
-  message: string;
-};
-
-const parseBibTeXEntry = (bibtex: string): ParseSuccess | ParseError => {
+const parseBibTeXEntry = (bibtex: string): Result<Record<string, string>> => {
   const result: Record<string, string> = {};
 
   // Match the entry type and ID
   const entryHeader = bibtex.match(/^@\s*(\w+)\s*{\s*([^,]+)\s*,/s);
   if (!entryHeader) {
-    return {
-      __typename: "ParseError",
-      message: "ParseError: Invalid BibTeX entry header",
-    };
+    return Err("ParseError: Invalid BibTeX entry header");
   }
 
   result.type = entryHeader[1];
@@ -43,36 +28,15 @@ const parseBibTeXEntry = (bibtex: string): ParseSuccess | ParseError => {
     result[key] = value;
   }
 
-  return {
-    __typename: "ParseSuccess",
-    data: result,
-  };
-};
-
-type ConstructSuccess = {
-  __typename: "ConstructSuccess";
-  data: PaperInfo;
-};
-
-type ConstructError = {
-  __typename: "ConstructError";
-  message: string;
+  return Ok(result);
 };
 
 export const constructPaperInfo = (
   bibTex: string,
-): ConstructSuccess | ConstructError => {
+): Result<PaperInfo> => {
   const rec = parseBibTeXEntry(bibTex);
-  switch (rec.__typename) {
-    default:
-      neverReach(rec);
-    case "ParseError":
-      return {
-        __typename: "ConstructError",
-        message: `ParseError: ${rec.message}`,
-      };
-    case "ParseSuccess":
-      const { data } = rec;
+  return match(rec, {
+    onSuccess: (data) => {
       const type = data.type || undefined;
       const id = data.id || undefined;
       const title = data.title || undefined;
@@ -81,26 +45,22 @@ export const constructPaperInfo = (
       const journal = data.journal || undefined;
       const volume = data.volume || undefined;
       const pages = data.pages || undefined;
-
       if (title === undefined || author === undefined || type === undefined || id === undefined) {
-        return {
-          __typename: "ConstructError",
-          message: "ConstructError: Title and authors are required",
-        };
+        return Err("ConstructError: Title and authors are required");
       }
-
-      return {
-        __typename: "ConstructSuccess",
-        data: {
-          type,
-          id,
-          title,
-          author,
-          year,
-          journal,
-          volume,
-          pages,
-        },
-      };
-  }
+      return Ok({
+        type,
+        id,
+        title,
+        author,
+        year,
+        journal,
+        volume,
+        pages,
+      });
+    },
+    onError: (msg) => {
+      return Err(msg);
+    },
+  });
 };

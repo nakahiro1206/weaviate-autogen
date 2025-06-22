@@ -14,6 +14,7 @@ import { constructPaperInfo } from "@/lib/parse-bibtex";
 import { PaperInfo } from "@/models/paper";
 import { Textarea } from "../ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { match } from "@/lib/result";
 
 type Props = {
   trigger: React.JSX.Element;
@@ -32,15 +33,15 @@ export const SubmitForm: FC<Props> = (props) => {
   const parse = () => {
     const input = inputRef.current?.value;
     if (!input) return;
-    const parsed = constructPaperInfo(input);
-    switch (parsed.__typename) {
-      case "ConstructSuccess":
-        setParsedData({ data: parsed.data });
-        break;
-      case "ConstructError":
-        setParsedData({ error: parsed.message });
-        break;
-    }
+    const parsedResult = constructPaperInfo(input);
+    match(parsedResult, {
+      onSuccess: (data) => {
+        setParsedData({ data });
+      },
+      onError: (msg) => {
+        setParsedData({ error: msg });
+      },
+    });
   };
   const submitAction = () => {
     if (parsedData?.data) {
