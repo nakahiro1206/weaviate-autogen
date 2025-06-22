@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import { RetrieveResult } from "@/domain/entities/paper";
+import { RetrievedPaperEntry } from "@/models/paper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
-    targetPaper: RetrieveResult;
+    targetPaper: RetrievedPaperEntry;
 }
 export const SearchWindow: React.FC<Props> = ({ targetPaper }) => {
     const searchRef = useRef<HTMLTextAreaElement>(null);

@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { paperUseCase, chunkUseCase } from "@/service";
-import { GetAllPapersResult } from "@/domain/entities/paper";
 import { match } from "@/lib/result";
 import { toast } from "sonner";
+import { fetchAllPapers } from "@/lib/api-helper/paper";
+import { chunkPaper } from "@/lib/api-helper/chunk";
+import { RetrievedPaperEntry } from "@/models/paper";
 
 const PdfPreview = dynamic(() => import("./pdf-preview"), { ssr: false });
 
 export const Entries = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
-  const [papers, setPapers] = useState<GetAllPapersResult>([]);
-  const [activePdfEncoded, setActivePdfEncoded] = useState<string | null>(null);
+  const [papers, setPapers] = useState<RetrievedPaperEntry[]>([]);
+  const [activePdfFileId, setActivePdfFileId] = useState<string | null>(null);
   const [chunkingPaperId, setChunkingPaperId] = useState<string | null>(null);
   const deactivatePdf = () => {
-    setActivePdfEncoded(null);
+    setActivePdfFileId(null);
   };
 
   useEffect(() => {
     // if it has error, no card will be shown
     const getAll = async () => {
-      const res = await paperUseCase.fetchAllPapers();
+      const res = await fetchAllPapers();
       match(res, {
         onSuccess: (data) => {
             setPapers(data);
@@ -32,9 +33,9 @@ export const Entries = () => {
     getAll();
   }, []);
 
-  const handleChunk = async (paper: GetAllPapersResult[0]) => {
+  const handleChunk = async (paper: RetrievedPaperEntry) => {
     setChunkingPaperId(paper.metadata.uuid);
-    const res = await chunkUseCase.chunkPaper(paper, paper.metadata.uuid);
+    const res = await chunkPaper(paper, paper.metadata.uuid);
     match(res, {
       onSuccess: (chunks) => {
         toast.success(`Successfully chunked paper into ${chunks.length} chunks`);
@@ -110,7 +111,7 @@ export const Entries = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex gap-2 justify-end">
                       <button
-                        onClick={() => setActivePdfEncoded(item.encoded)}
+                        onClick={() => setActivePdfFileId(item.metadata.uuid)}
                         className="text-sky-600 hover:text-sky-900"
                       >
                         Preview
@@ -129,9 +130,9 @@ export const Entries = () => {
             </tbody>
           </table>
         </div>
-        {activePdfEncoded && (
+        {activePdfFileId && (
           <div className="fixed inset-0 z-50 max-h-lvh overflow-y-scroll">
-            <PdfPreview encoded={activePdfEncoded} close={deactivatePdf} />
+            <PdfPreview fileId={activePdfFileId} close={deactivatePdf} />
           </div>
         )}
       </div>

@@ -1,32 +1,16 @@
 "use server";
-import { PaperEntry } from "@/domain/entities/paper";
-import { PaperChunk } from "@/domain/entities/chunk";
+import { PaperEntry } from "@/models/paper";
+import { PaperChunk } from "@/models/chunk";
 import { getPaperCollection, getPaperChunkCollection } from "./client";
 import { Ok, Err, Result } from "@/lib/result";
-import { getChunksFixedSizeWithOverlap, getChunksMaxChunkWithOverlap } from "@/lib/chunking";
-import { FileStorage } from "@/lib/storage/file-storage";
-import { getStoragePath } from "@/config/storage";
-import { v4 as uuidv4 } from 'uuid';
+import { getChunksFixedSizeWithOverlap } from "@/lib/chunking";
 // Quantization?
-
-const fileStorage = new FileStorage(getStoragePath());
-
-// Initialize file storage
-fileStorage.initialize().catch(console.error);
 
 // Upload paper to Weaviate
 export const addPaper = async (
   paper: PaperEntry,
 ): Promise<Result<string>> => {
   try {
-    // // Save PDF file to file system
-    // const fileId = uuidv4();
-    // const buffer = Buffer.from(paper.encoded, 'base64');
-    // const saveResult = await fileStorage.saveFile(fileId, buffer);
-    // if (saveResult.type === 'error') {
-    //   return Err(saveResult.message);
-    // }
-
     const paperCollection = await getPaperCollection();
     const uuid = await paperCollection.data.insert({
       properties: {

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { constructPaperInfo } from "@/lib/parse-bibtex";
-import { PaperInfo } from "@/domain/entities/paper";
+import { PaperInfo } from "@/models/paper";
 import { Textarea } from "../ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 

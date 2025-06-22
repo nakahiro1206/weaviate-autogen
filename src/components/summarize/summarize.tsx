@@ -6,8 +6,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import { paperUseCase, pdfUseCase } from "@/service";
-import { PaperInfo } from "@/domain/entities/paper";
+import { PaperInfo } from "@/models/paper";
 
 import { summarizeDocument } from "@/lib/openai/summary";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,9 @@ import { PlusIcon } from "@/components/icons/plus";
 import { SubmitIcon } from "@/components/icons/submit";
 import { match } from "@/lib/result";
 import { toast } from "sonner"
+
+import { extractText } from "@/service/client/pdf";
+import { addPaper } from "@/lib/api-helper/paper";
 
 export const Summarize: FC = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
@@ -50,7 +52,7 @@ export const Summarize: FC = () => {
     // Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     const encoded = Buffer.from(await file.arrayBuffer()).toString("base64");
     setEncoded(encoded);
-    const res = await pdfUseCase.extractText(file);
+    const res = await extractText(file);
     match(res, {
       onSuccess: (data) => {
         setText(data.text);
@@ -77,7 +79,7 @@ export const Summarize: FC = () => {
     if (encoded === null || summary === null || text === null ) {
       return;
     }
-    const res = await paperUseCase.addPaper({
+    const res = await addPaper({
       summary: summary,
       comment: comment,
       encoded: encoded,

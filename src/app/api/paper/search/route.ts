@@ -1,22 +1,21 @@
-import { apiPaperUseCase } from "@/app/api/service";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-
-const InputSchema = z.object({
-  query: z.string(),
-});
+import { SearchSimilarResponse, SearchSimilarInputSchema } from "./schema";
+import { searchSimilar } from "@/lib/weaviate/similarity-search";
+import { RetrievedPaperEntry } from "@/models/paper";
+import { match } from "@/lib/result";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const parsed = InputSchema.safeParse(body);
+  const parsed = SearchSimilarInputSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  const res = await apiPaperUseCase.searchSimilar(parsed.data.query);
-  switch (res.type) {
-    case "success":
-      return NextResponse.json(res.data);
-    case "error":
-      return NextResponse.json({ error: res.message }, { status: 500 });
-  }
+  const res = await searchSimilar(parsed.data.query);
+  return match<RetrievedPaperEntry[], NextResponse>(res, {
+    onSuccess: (data) => {
+      const res: SearchSimilarResponse = { results: data };
+      return NextResponse.json(res);
+    },
+    onError: (message) => NextResponse.json({ error: message }, { status: 500 }),
+  });
 }

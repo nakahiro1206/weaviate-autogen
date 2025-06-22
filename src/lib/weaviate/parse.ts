@@ -1,4 +1,4 @@
-import { PaperEntry, PaperEntrySchema } from "@/domain/entities/paper";
+import { PaperEntry, PaperEntrySchema } from "@/models/paper";
 
 import { WeaviateNonGenericObject } from "weaviate-client";
 

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { chunkUseCase } from "@/service";
-import { PaperChunk } from "@/domain/entities/chunk";
+import { PaperChunk } from "@/models/chunk";
 import { match } from "@/lib/result";
 import { toast } from "sonner";
+import { fetchAllChunks } from "@/lib/api-helper/chunk";
 
 export const Chunks = () => {
   const [chunks, setChunks] = useState<PaperChunk[]>([]);
@@ -12,7 +12,7 @@ export const Chunks = () => {
 
   useEffect(() => {
     const loadChunks = async () => {
-      const res = await chunkUseCase.fetchAllChunks();
+      const res = await fetchAllChunks();
       match(res, {
         onSuccess: (data) => {
           setChunks(data);

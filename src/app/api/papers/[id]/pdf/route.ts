@@ -6,10 +6,11 @@ const fileStorage = new FileStorage(getStoragePath());
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const result = await fileStorage.readFile(params.id);
+    const id = (await params).id;
+    const result = await fileStorage.readFile(id);
     if (result.type === 'error') {
       return new NextResponse('PDF not found', { status: 404 });
     }
@@ -17,7 +18,7 @@ export async function GET(
     return new NextResponse(result.data, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${params.id}.pdf"`,
+        'Content-Disposition': `inline; filename="${id}.pdf"`,
       },
     });
   } catch (error) {

@@ -45,6 +45,7 @@ export const closeClient = async () => {
 
 export const createPaperCollection = async () => {
   const client = await getClient();
+  console.log("createPaperCollection aaa");
   const collection = await client.collections.create({
     name: "Paper",
     vectorizers: [
@@ -74,6 +75,7 @@ export const createPaperCollection = async () => {
       ] },
     ],
   });
+  console.log("createPaperCollection bbb");
   return collection;
 }
 

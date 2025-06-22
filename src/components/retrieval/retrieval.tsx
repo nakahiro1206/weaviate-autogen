@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-import { paperUseCase } from "@/service";
-import { RetrieveResult } from "@/domain/entities/paper";
+import { searchSimilar } from "@/lib/api-helper/paper";
 import { toast } from "sonner";
 import { match } from "@/lib/result";
 import {
@@ -13,10 +12,10 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { SearchWindow } from "./search-window";
+import { RetrievedPaperEntry } from "@/models/paper";
 
 export const Retrieval = () => {
-  const history = ["paper 1", "paper 2", "paper 3"];
-  const [results, setResults] = useState<RetrieveResult[]>([]);
+  const [results, setResults] = useState<RetrievedPaperEntry[]>([]);
   const searchRef = useRef<HTMLTextAreaElement>(null);
   const [activePdfEncoded, setActivePdfEncoded] = useState<string | null>(null);
   const [chunkingPaperId, setChunkingPaperId] = useState<string | null>(null);
@@ -29,9 +28,9 @@ export const Retrieval = () => {
   //   encoded: "encoded data",
   // };
 
-  const [targetPaper, setTargetPaper] = useState<RetrieveResult | null>(null);
+  const [targetPaper, setTargetPaper] = useState<RetrievedPaperEntry | null>(null);
 
-  const handleOpenChunks = (paper: RetrieveResult) => {
+  const handleOpenChunks = (paper: RetrievedPaperEntry) => {
     setTargetPaper(paper);
   };
 
@@ -39,7 +38,7 @@ export const Retrieval = () => {
     setActivePdfEncoded(null);
   };
 
-  const handleChunk = async (paper: RetrieveResult) => {
+  const handleChunk = async (paper: RetrievedPaperEntry) => {
     setChunkingPaperId(paper.metadata.uuid);
     // Mock chunking action
     setTimeout(() => {
@@ -54,7 +53,7 @@ export const Retrieval = () => {
       toast.error("Please enter a query");
       return;
     }
-    const res = await paperUseCase.searchSimilar(query);
+    const res = await searchSimilar(query);
     match(res, {
       onSuccess: (data) => {
         setResults(data);

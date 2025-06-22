@@ -28,6 +28,7 @@ export const PdfPreview: FC<{ fileId: string; close: () => void }> = ({
   }, []);
 
   useEffect(() => {
+    // need to fix!
     const fetchPdf = async () => {
       try {
         const response = await fetch(`/api/papers/${fileId}/pdf`);

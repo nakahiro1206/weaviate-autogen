@@ -6,13 +6,7 @@ export const PaperChunkSchema = z.object({
     paperTitle: z.string(),
     chunkIndex: z.number(),
 });
-  
+
 export type PaperChunk = z.infer<typeof PaperChunkSchema>;
 
 export const PaperChunksSchema = z.array(PaperChunkSchema);
-
-export const ChunkResultSchema = z.object({
-    chunks: z.array(z.string()),
-});
-
-export type ChunkResult = z.infer<typeof ChunkResultSchema>;

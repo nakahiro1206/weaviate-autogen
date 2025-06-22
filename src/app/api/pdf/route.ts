@@ -1,8 +1,22 @@
 "use server";
 import { NextResponse } from "next/server";
-import { match, tryCatch } from "@/lib/result";
-import { ParsePdfOutput } from "@/domain/entities/pdf";
-import { apiPdfUseCase } from "../service";
+import { match, Ok, Result, tryCatch } from "@/lib/result";
+import { ParsePdfOutput } from "./schema";
+import PdfParse from "pdf-parse";
+
+async function extractText(file: File): Promise<Result<ParsePdfOutput>> {
+  // Convert File to Buffer
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  // Parse PDF metadata using PDF.js
+  const pdf = await PdfParse(buffer);
+  const text = pdf.text;
+
+  return Ok({
+    text
+  })
+}
 
 export async function POST(req: Request) {
   const formDataResult = tryCatch(async () => await req.formData())
@@ -14,9 +28,12 @@ export async function POST(req: Request) {
   if (!file || !(file instanceof File)) {
     return NextResponse.json({ error: "file is not a file" }, { status: 400 });
   }
-  const res = await apiPdfUseCase.extractText(file);
+  const res = await extractText(file);
   return match<ParsePdfOutput, NextResponse>(res, {
-    onSuccess: (data) => NextResponse.json(data),
+    onSuccess: (data) => {
+      const res: ParsePdfOutput = data;
+      return NextResponse.json(res);
+    },
     onError: (message) => NextResponse.json({ error: message }, { status: 500 }),
   });
 }

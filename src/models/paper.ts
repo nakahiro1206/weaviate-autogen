@@ -26,25 +26,12 @@ export const PaperEntrySchema = z.object({
   
 export type PaperEntry = z.infer<typeof PaperEntrySchema>;
 
-export const RetrieveResultSchema = z.object({
-  metadata: z.object({
+export const RetrievedPaperEntrySchema = z.object({
+    metadata: z.object({
     uuid: z.string(),
-  }),
-  ...PaperEntrySchema.shape,
+}),
+...PaperEntrySchema.shape,
 });
-export type RetrieveResult = z.infer<typeof RetrieveResultSchema>;
-export const RetrieveResultArraySchema = z.array(RetrieveResultSchema);
 
-
-export const GetAllPapersResultSchema = z.array(z.object({
-  metadata: z.object({
-    uuid: z.string(),
-  }),
-  ...PaperEntrySchema.shape,
-}));
-export type GetAllPapersResult = z.infer<typeof GetAllPapersResultSchema>;
-
-export const AddPaperResponseSchema = z.object({
-  id: z.string(),
-});
-export type AddPaperResponse = z.infer<typeof AddPaperResponseSchema>;
+export type RetrievedPaperEntry = z.infer<typeof RetrievedPaperEntrySchema>;
+export const RetrievedPaperEntryArraySchema = z.array(RetrievedPaperEntrySchema);

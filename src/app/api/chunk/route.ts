@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
-import { apiChunkUseCase } from "../service";
 import { match, tryCatch } from "@/lib/result";
-import { PaperChunk } from "@/domain/entities/chunk";
-import { PaperEntrySchema } from "@/domain/entities/paper";
-import { z } from "zod";
+import { PaperChunk } from "@/models/chunk";
+import { AddPaperChunkInputSchema, AddPaperChunkResponse, FetchAllChunksResponse } from "./schema";
+import { getAllChunks, addPaperChunk } from "@/lib/weaviate/insert";
 
 export async function GET() {
-  const res = await apiChunkUseCase.fetchAllChunks();
+  const res = await getAllChunks();
   return match<PaperChunk[], NextResponse>(res, {
-    onSuccess: (data) => NextResponse.json(data),
+    onSuccess: (data) => {
+      const response: FetchAllChunksResponse = { chunks: data };
+      return NextResponse.json(response);
+    },
     onError: (message) => NextResponse.json({ error: message }, { status: 500 }),
   });
 }
-
-const RequestSchema = z.object({
-  paperEntry: PaperEntrySchema,
-  paperEntryUuid: z.string(),
-});
 
 export async function POST(req: Request) {
   const bodyResult = tryCatch(async () => await req.json());
@@ -24,14 +21,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "body is not a json" }, { status: 400 });
   }
   const body = await bodyResult.data;
-  const parsed = RequestSchema.safeParse(body);
+  const parsed = AddPaperChunkInputSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
   const { paperEntry, paperEntryUuid } = parsed.data;
-  const res = await apiChunkUseCase.chunkPaper(paperEntry, paperEntryUuid);
+  const res = await addPaperChunk(paperEntry, paperEntryUuid);
   return match<string[], NextResponse>(res, {
-    onSuccess: (data) => NextResponse.json({ chunks: data }),
+    onSuccess: (data) => {
+      const response: AddPaperChunkResponse = { chunkIds: data };
+      return NextResponse.json(response);
+    },
     onError: (message) => NextResponse.json({ error: message }, { status: 500 }),
   });
 } 

@@ -1,6 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Err, Ok, Result } from '@/lib/result';
+import { getStoragePath } from '@/config/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 export class FileStorage {
   private baseDir: string;
@@ -18,9 +20,10 @@ export class FileStorage {
     }
   }
 
-  async saveFile(fileId: string, data: Buffer): Promise<Result<string>> {
+  async saveFile(fileId: string, base64Encoded: string): Promise<Result<string>> {
     try {
       const filePath = path.join(this.baseDir, `${fileId}.pdf`);
+      const data = Buffer.from(base64Encoded, 'base64');
       await fs.writeFile(filePath, data);
       return Ok(filePath);
     } catch (err) {
@@ -48,3 +51,17 @@ export class FileStorage {
     }
   }
 } 
+
+export const fileStorage = (() => {
+  const storage = new FileStorage(getStoragePath());
+  storage.initialize()
+  .then((result) => {
+    if (result.type === "error") {
+      console.error("Failed to initialize file storage", result.message);
+    }
+  })
+  .catch((err) => {
+    console.error("Failed to initialize file storage", err);
+  });
+  return storage;
+})();
