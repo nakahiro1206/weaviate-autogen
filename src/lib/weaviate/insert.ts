@@ -1,5 +1,5 @@
 "use server";
-import { PaperEntry } from "@/models/paper";
+import { PaperEntry, PaperEntrySchema } from "@/models/paper";
 import { PaperChunk, PaperChunkSchema } from "@/models/chunk";
 import { getPaperCollection, getPaperChunkCollection } from "./client";
 import { Ok, Err, Result } from "@/lib/result";
@@ -15,23 +15,7 @@ export const addPaper = async (
   try {
     const paperCollection = await getPaperCollection();
     const uuid = await paperCollection.data.insert({
-      properties: {
-        summary: paper.summary,
-        comment: paper.comment || null,
-        info: {
-          type: paper.info.type,
-          id: paper.info.id,
-          title: paper.info.title,
-          abstract: paper.info.abstract || null,
-          author: paper.info.author,
-          journal: paper.info.journal || null,
-          volume: paper.info.volume || null,
-          number: paper.info.number || null,
-          pages: paper.info.pages || null,
-          year: paper.info.year || null,
-          publisher: paper.info.publisher || null,
-        }
-      },
+      properties: adaptObjectToWeaviateProperties(PaperEntrySchema, paper),
     });
     console.log(uuid);
     return Ok(uuid);
