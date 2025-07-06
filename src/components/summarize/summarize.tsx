@@ -1,194 +1,51 @@
 import {
   FC,
-  MouseEventHandler,
-  ChangeEventHandler,
-  useRef,
-  useState,
-  useEffect,
+  Suspense,
 } from "react";
-import { PaperInfo } from "@/models/paper";
 
-import { summarizeDocument } from "@/lib/openai/summary";
 import { Button } from "@/components/ui/button";
 import { SubmitForm } from "@/components/summarize/custom-dialog";
-import { PlusIcon } from "@/components/icons/plus";
-import { SubmitIcon } from "@/components/icons/submit";
-import { match } from "@/lib/result";
-import { toast } from "sonner"
 
-import { extractText } from "@/lib/api-helper/pdf";
-import { addPaper } from "@/lib/api-helper/paper";
-import { useSummarizeStream } from "@/hooks/use-summarize-stream";
-import { useSample } from "@/hooks/sample";
+import { Sidebar, SidebarSkeleton } from "../sidebar/sidebar";
+import { PaperDescription } from "./paper";
+import { Upload } from "./upload";
+import { RetrievedPaperEntry } from "@/models/paper";
+import { useState } from "react";
 
 export const Summarize: FC = () => {
-  const history = ["paper 1", "paper 2", "paper 3"];
-
-  const [text, setText] = useState<string | null>(null);
-  const [encoded, setEncoded] = useState<string | null>(null);
-  const { inputRef: sampleInputRef, setQuery: setSampleQuery, data: sampleData, isLoading: sampleIsLoading, error: sampleError } = useSample();
-
-  const { summary: summaryStream, isStreaming, error, startStream, reset } = useSummarizeStream();
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const isValidFile = (file: File) => {
-    return file.type === "application/pdf"; //  && file.size <= 10 * 1024 * 1024;
+  const [selectedPaper, setSelectedPaper] = useState<RetrievedPaperEntry | null>(null);
+  const handlePaperSelect = (paper: RetrievedPaperEntry | null) => {
+    setSelectedPaper(paper);
+    // if (paper === null) {
+    //   reset();
+    //   setText(null);
+    //   setEncoded(null);
+    //   setFile(null);
+    // }
   };
-
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (
-    event,
-  ) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setFile(file);
-    }
-  };
-
-  const handleClick: MouseEventHandler<HTMLButtonElement> = () => {
-    inputRef.current?.click();
-  };
-
-  const parsePdf = async () => {
-    if (!file) return;
-    // body size, PDF validation
-    // Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
-    const encoded = Buffer.from(await file.arrayBuffer()).toString("base64");
-    setEncoded(encoded);
-    const res = await extractText(file);
-    match(res, {
-      onSuccess: (data) => {
-        setText(data.text);
-      },
-      onError: (message) => {
-        toast.error(message);
-      },
-    });
-  };
-
-  const summarize = async (text: string) => {
-    await startStream(text);
-  }
-
-  const add = async (data: PaperInfo, comment?: string): Promise<void> => {
-    if (encoded === null || summaryStream === null || text === null ) {
-      return;
-    }
-    const res = await addPaper({
-      summary: summaryStream,
-      comment: comment,
-      encoded: encoded,
-      fullText: text,
-      info: data,
-    });
-    match(res, {
-      onSuccess: (data) => {
-        toast.success(`Paper added. id: ${data.id}`);
-      },
-      onError: (message) => {
-        toast.error(message);
-      },
-    });
-  };
-
-  useEffect(() => {
-    if (text) {
-      summarize(text);
-    }
-  }, [text]);
-
   return (
     <div className="w-full flex">
-      <div className="w-1/4 h-[calc(100vh)] flex flex-col gap-2 p-4 bg-gray-100">
-        <div className="w-full h-12 rounded-lg text-center shadow-sm bg-sky-100">
-          <div className="w-full h-full flex items-center justify-center">
-            New Chat!
-          </div>
-        </div>
-        {history.map((item, index) => {
-          return (
-            <div
-              key={index}
-              className="w-full h-12 rounded-lg text-center shadow-sm bg-white"
-            >
-              <div className="w-full h-full flex items-center justify-center">
-                {item}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <Suspense fallback={<SidebarSkeleton />}>
+        <Sidebar onPaperSelect={handlePaperSelect} selectedPaperId={selectedPaper?.metadata.uuid} />
+      </Suspense>
       <div className="w-3/4 h-[calc(100vh)] flex flex-col gap-2 p-4">
-        <div className="w-full px-16 flex flex-col gap-2 flex-1 overflow-hidden">
-          <div className="w-full pb-4">
-            <div className="border-b-1 border-sky-800 text-2xl font-extrabold text-sky-600">
-              Let's Summarize Academic Paper!
-            </div>
-          </div>
-          <div className="w-full flex flex-row gap-2 p-2">
-            <input
-              type="text"
-              ref={sampleInputRef}
-              className="w-full"
-            />
-            <button onClick={setSampleQuery}>
-              Click me!
-            </button>
-            {sampleData && <div>{sampleData.greeting}</div>}
-            <input
-              type="file"
-              accept="application/pdf"
-              multiple={false}
-              ref={inputRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <button
-              className="w-10 h-10 flex flex-col justify-center items-center rounded-lg p-1 bg-sky-500 hover:border-2 hover:border-solid hover:border-sky-600"
-              onClick={handleClick}
-            >
-              <PlusIcon className="text-white" />
-            </button>
-            {file && (
-              <div className="h-10 flex flex-col justify-center gap-1">
-                <div>{file.name}</div>
-                <div>{file.size}</div>
-              </div>
-            )}
-            {file && isValidFile(file) && (
-              <button
-                className="w-10 h-10 flex flex-col justify-center items-center rounded-lg p-1 bg-sky-500 hover:border-2 hover:border-solid hover:border-sky-600"
-                onClick={parsePdf}
-              >
-                <SubmitIcon className="text-white" />
-              </button>
-            )}
-          </div>
-          {text && (
-            <div className="w-full flex flex-row gap-2 p-2 line-clamp-3">
-              {text}
-            </div>
-          )}
-          {summaryStream && (
-            <div className="w-full flex-grow overflow-y-auto rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
-              <div className="text-left whitespace-pre-wrap">{summaryStream}</div>
-            </div>
-          )}
-          {(summaryStream === "" && !text) && (
-            <div className="w-full flex-grow overflow-y-auto rounded-xl text-center shadow-sm px-8 flex flex-col gap-2">
-              <div>Let's upload a paper first!</div>
-            </div>
+        <div className="w-full px-16 flex flex-col gap-2 flex-1 overflow-hidden">          
+          {/* Selected Paper Info */}
+          {selectedPaper && (
+            <PaperDescription paper={selectedPaper} />
           )}
 
-          {summaryStream && (
-            <div className="w-full flex flex-row justify-end">
-              <SubmitForm
-                trigger={<Button>Save document!</Button>}
-                submitFunction={add}
-              />
-            </div>
+          {selectedPaper === null && (
+            <Upload />
           )}
+          
+          {/* Display selected paper's text content */}
+          {/* {selectedPaperText && (
+            <div className="w-full flex flex-row gap-2 p-2 line-clamp-3">
+              <div className="text-sm text-gray-600">Paper Content:</div>
+              <div className="flex-1">{selectedPaperText.content}</div>
+            </div>
+          )} */}
         </div>
       </div>
     </div>

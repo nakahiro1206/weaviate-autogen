@@ -1,4 +1,4 @@
-import { httpBatchLink } from '@trpc/client';
+import { httpBatchLink, httpLink, isNonJsonSerializable, splitLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import type { AppRouter } from './routers/_app';
 function getBaseUrl() {
@@ -18,19 +18,29 @@ export const trpc = createTRPCNext<AppRouter>({
   config(opts) {
     return {
       links: [
-        httpBatchLink({
-          /**
-           * If you want to use SSR, you need to use the server's full URL
-           * @see https://trpc.io/docs/v11/ssr
-           **/
-          url: `${getBaseUrl()}/api/trpc`,
-          // You can pass any HTTP headers you wish here
-          async headers() {
-            return {
-              // authorization: getAuthCookie(),
-            };
-          },
+        splitLink({
+          condition: (opts) => isNonJsonSerializable(opts.input),
+          true: httpLink({ // for form data
+            url: `${getBaseUrl()}/api/trpc`,
+          }),
+          false: httpBatchLink({
+            url: `${getBaseUrl()}/api/trpc`,
+          }),
         }),
+        // httpBatchLink({
+        //   /**
+        //    * If you want to use SSR, you need to use the server's full URL
+        //    * @see https://trpc.io/docs/v11/ssr
+        //    **/
+        //   url: `${getBaseUrl()}/api/trpc`,
+        //   // You can pass any HTTP headers you wish here
+        //   async headers() {
+        //     return {
+        //       // authorization: getAuthCookie(),
+        //     };
+        //   },
+        // }),
+        
       ],
     };
   },

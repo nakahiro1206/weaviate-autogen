@@ -1,17 +1,12 @@
-import { z } from 'zod';
-import { procedure, router } from '../server';
+import { router } from '../server';
+import { paperRouter } from './paper';
+import { helloRouter } from './hello';
+import { pdfRouter } from './pdf';
+
 export const appRouter = router({
-  hello: procedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
+  hello: helloRouter,
+  paper: paperRouter,
+  pdf: pdfRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

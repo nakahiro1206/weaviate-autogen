@@ -3,6 +3,7 @@ import { AddPaperRequest, AddPaperResponse, AddPaperResponseSchema, GetAllPapers
 import { PaperEntry } from "@/models/paper"
 import { RetrievedPaperEntry } from "@/models/paper"
 import { SearchSimilarResponse, SearchSimilarResponseSchema } from "@/app/api/paper/search/schema"
+import { TextInfo, TextInfoSchema } from "@/app/papers/[id]/text/schema"
 
 export async function fetchAllPapers(): Promise<Result<RetrievedPaperEntry[]>> {
     return safeFetch(
@@ -50,4 +51,17 @@ export async function searchSimilar(query: string): Promise<Result<RetrievedPape
         onSuccess: (data: SearchSimilarResponse) => Ok(data.results),
         onError: (msg: string) => Err(msg),
     }));
+}
+export async function getPaperText(id: string): Promise<Result<TextInfo>> {
+    return safeFetch(
+        "paper text",
+        TextInfoSchema,
+        `/api/papers/${id}/text`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
 }

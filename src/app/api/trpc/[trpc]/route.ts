@@ -9,4 +9,10 @@ const handler = (req: Request) =>
       createContext: () => ({}),
     });
 
-export { handler as GET, handler as POST }; 
+//   export const config = {
+//     api: {
+//       bodyParser: false,
+//     },
+//   }
+
+export { handler as GET, handler as POST };
