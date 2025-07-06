@@ -18,13 +18,15 @@ import { toast } from "sonner"
 
 import { extractText } from "@/lib/api-helper/pdf";
 import { addPaper } from "@/lib/api-helper/paper";
-import { useSummarizeStream } from "@/lib/hooks/use-summarize-stream";
+import { useSummarizeStream } from "@/hooks/use-summarize-stream";
+import { useSample } from "@/hooks/sample";
 
 export const Summarize: FC = () => {
   const history = ["paper 1", "paper 2", "paper 3"];
 
   const [text, setText] = useState<string | null>(null);
   const [encoded, setEncoded] = useState<string | null>(null);
+  const { inputRef: sampleInputRef, setQuery: setSampleQuery, data: sampleData, isLoading: sampleIsLoading, error: sampleError } = useSample();
 
   const { summary: summaryStream, isStreaming, error, startStream, reset } = useSummarizeStream();
 
@@ -125,6 +127,15 @@ export const Summarize: FC = () => {
             </div>
           </div>
           <div className="w-full flex flex-row gap-2 p-2">
+            <input
+              type="text"
+              ref={sampleInputRef}
+              className="w-full"
+            />
+            <button onClick={setSampleQuery}>
+              Click me!
+            </button>
+            {sampleData && <div>{sampleData.greeting}</div>}
             <input
               type="file"
               accept="application/pdf"
