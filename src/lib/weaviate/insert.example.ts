@@ -17,8 +17,6 @@ export const insertPaperExample = async (client: any) => {
   const paperData: z.infer<typeof PaperEntrySchema> = {
     summary: "This paper discusses the application of machine learning in natural language processing.",
     comment: "Very relevant to our research",
-    encoded: "base64encodedpdfcontent",
-    fullText: "Full text content of the research paper...",
     info: {
       type: "journal",
       id: "doi:10.1234/example.2023.001",
@@ -74,8 +72,6 @@ export const insertPaperWithAdapter = async (client: any) => {
   const paperData: z.infer<typeof PaperEntrySchema> = {
     summary: "Another research paper",
     comment: "Interesting findings",
-    encoded: "base64content",
-    fullText: "Full content...",
     info: {
       type: "conference",
       id: "conf-2023-001",

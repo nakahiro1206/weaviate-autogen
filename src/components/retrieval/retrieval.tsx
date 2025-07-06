@@ -17,7 +17,7 @@ import { RetrievedPaperEntry } from "@/models/paper";
 export const Retrieval = () => {
   const [results, setResults] = useState<RetrievedPaperEntry[]>([]);
   const searchRef = useRef<HTMLTextAreaElement>(null);
-  const [activePdfEncoded, setActivePdfEncoded] = useState<string | null>(null);
+  const [activePaperId, setActivePaperId] = useState<string | null>(null);
   const [chunkingPaperId, setChunkingPaperId] = useState<string | null>(null);
 
   // const entry: PaperEntry = {
@@ -34,8 +34,8 @@ export const Retrieval = () => {
     setTargetPaper(paper);
   };
 
-  const deactivatePdf = () => {
-    setActivePdfEncoded(null);
+  const deactivatePaper = () => {
+    setActivePaperId(null);
   };
 
   const handleChunk = async (paper: RetrievedPaperEntry) => {
@@ -122,7 +122,7 @@ export const Retrieval = () => {
                     <TableCell className="w-1/4 break-words whitespace-normal">
                       <div className="flex gap-2 justify-end">
                         <button
-                          onClick={() => setActivePdfEncoded(item.encoded)}
+                          onClick={() => setActivePaperId(item.metadata.uuid)}
                           className="text-sky-600 hover:text-sky-900"
                         >
                           Preview

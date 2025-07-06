@@ -37,6 +37,7 @@ export const constructPaperInfo = (
   const rec = parseBibTeXEntry(bibTex);
   return match(rec, {
     onSuccess: (data) => {
+      console.log("data", data);
       const type = data.type || undefined;
       const id = data.id || undefined;
       const title = data.title || undefined;

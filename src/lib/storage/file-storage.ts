@@ -2,8 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Err, Ok, Result } from '@/lib/result';
 import { getStoragePath } from '@/config/storage';
-import { v4 as uuidv4 } from 'uuid';
 
+// this functionality involves initialize() operation, so it would be better
+// to be declared as a class rather than a exported function
 export class FileStorage {
   private baseDir: string;
 

@@ -1,5 +1,5 @@
 import { Err, match, Ok, Result, safeFetch } from "@/lib/result"
-import { AddPaperResponse, AddPaperResponseSchema, GetAllPapersResponse, GetAllPapersResponseSchema } from "@/app/api/paper/schema"
+import { AddPaperRequest, AddPaperResponse, AddPaperResponseSchema, GetAllPapersResponse, GetAllPapersResponseSchema } from "@/app/api/paper/schema"
 import { PaperEntry } from "@/models/paper"
 import { RetrievedPaperEntry } from "@/models/paper"
 import { SearchSimilarResponse, SearchSimilarResponseSchema } from "@/app/api/paper/search/schema"
@@ -20,7 +20,7 @@ export async function fetchAllPapers(): Promise<Result<RetrievedPaperEntry[]>> {
         onError: (msg: string) => Err(msg),
     }));
 }
-export async function addPaper(paper: PaperEntry): Promise<Result<AddPaperResponse>> {
+export async function addPaper(paper: AddPaperRequest): Promise<Result<AddPaperResponse>> {
     return safeFetch(
         "add paper",
         AddPaperResponseSchema,

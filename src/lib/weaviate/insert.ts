@@ -5,6 +5,7 @@ import { getPaperCollection, getPaperChunkCollection } from "./client";
 import { Ok, Err, Result } from "@/lib/result";
 import { getChunksFixedSizeWithOverlap } from "@/lib/chunking";
 import { adaptObjectToWeaviateProperties } from "./map";
+import { textStorage } from "@/lib/storage/text-storage";
 // Quantization?
 
 // Upload paper to Weaviate
@@ -17,9 +18,6 @@ export const addPaper = async (
       properties: {
         summary: paper.summary,
         comment: paper.comment || null,
-        encoded: paper.encoded,
-        // fileId: fileId, // Store file ID instead of encoded data
-        fullText: paper.fullText,
         info: {
           type: paper.info.type,
           id: paper.info.id,
@@ -48,7 +46,11 @@ export const addPaperChunk = async (
   paperEntryUuid: string,
 ): Promise<Result<string[]>> => {
   try {
-    const chunks = getChunksFixedSizeWithOverlap(paperEntry.fullText, 100, 0.2); // 100 words per chunk, 20% overlap
+    const textResult = await textStorage.readText(paperEntryUuid);
+    if (textResult.type === 'error') {
+      return Err(`Failed to get text: ${textResult.message}`);
+    }
+    const chunks = getChunksFixedSizeWithOverlap(textResult.data, 100, 0.2); // 100 words per chunk, 20% overlap
     const paperChunkCollection = await getPaperChunkCollection();
     const res = await paperChunkCollection.data.insertMany(chunks.map((chunk, index) => ({
       properties: adaptObjectToWeaviateProperties(PaperChunkSchema, {
