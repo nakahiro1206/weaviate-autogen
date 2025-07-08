@@ -9,12 +9,14 @@ import { mapZodSchemaToWeaviateProperties } from "./map";
 import { PaperEntrySchema, } from "@/models/paper";
 import { PaperChunkSchema } from "@/models/chunk";
 
+const NODE_ENV = process.env.NODE_ENV;
+
 let clientInstance: WeaviateClient | null = null;
 
 const getClient = async (): Promise<WeaviateClient> => {
   if (clientInstance === null) {
     clientInstance = await weaviate.connectToLocal({
-      host: "localhost", // URL only, no http prefix
+      host: NODE_ENV === "development" ? "localhost" : "weaviate", // URL only, no http prefix
       port: 8080,
       headers: {
         "X-OpenAI-Api-Key": process.env["OPENAI_API_KEY"] || "",

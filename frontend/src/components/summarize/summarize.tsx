@@ -2,10 +2,6 @@ import {
   FC,
   Suspense,
 } from "react";
-
-import { Button } from "@/components/ui/button";
-import { SubmitForm } from "@/components/summarize/custom-dialog";
-
 import { Sidebar, SidebarSkeleton } from "../sidebar/sidebar";
 import { PaperDescription } from "./paper";
 import { Upload } from "./upload";

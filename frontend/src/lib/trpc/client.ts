@@ -1,18 +1,22 @@
 import { httpBatchLink, httpLink, isNonJsonSerializable, splitLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import type { AppRouter } from './routers/_app';
+
+const NODE_ENV = process.env.NODE_ENV;
+
 function getBaseUrl() {
   if (typeof window !== 'undefined')
     // browser should use relative path
     return '';
   if (process.env.VERCEL_URL)
-    // reference for vercel.com
+    // reference for vercel deployment
     return `https://${process.env.VERCEL_URL}`;
-  if (process.env.RENDER_INTERNAL_HOSTNAME)
-    // reference for render.com
-    return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
-  // assume localhost
-  return `http://localhost:${process.env.PORT ?? 3000}`;
+  if (NODE_ENV === "development") {
+    // assumes launched by `npm run dev`
+    return `localhost:${process.env.PORT ?? 3000}`
+  }
+  // assume docker compose
+  return `http://host.docker.internal:${process.env.PORT ?? 3000}`;
 }
 export const trpc = createTRPCNext<AppRouter>({
   config(opts) {

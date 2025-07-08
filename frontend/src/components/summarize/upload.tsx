@@ -1,14 +1,12 @@
 import { useSummarizeStream } from "@/hooks/use-summarize-stream";
 import { addPaper } from "@/lib/api-helper/paper";
 import { match } from "@/lib/result";
-import { PaperInfo, RetrievedPaperEntry } from "@/models/paper";
-import { PlusIcon, UploadIcon, FileTextIcon, XIcon, CheckCircleIcon, SendIcon, MoveRightIcon } from "lucide-react"
+import { PaperInfo } from "@/models/paper";
+import { PlusIcon, UploadIcon, FileTextIcon, XIcon, CheckCircleIcon, MoveRightIcon } from "lucide-react"
 import { ChangeEventHandler, MouseEventHandler, useRef, useState, DragEvent } from "react";
 import { toast } from "sonner";
-import { SubmitIcon } from "@/components/icons/submit";
 import { useParsePdfMutation } from "@/hooks/pdf";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import ReactMarkdown from "react-markdown";
 import { Spinner } from "../ui/spinner";
