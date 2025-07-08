@@ -1,4 +1,4 @@
-# Weaviate + AutoGen(developed)
+# Weaviate + AutoGen(under development)
 
 ## Usage
 
