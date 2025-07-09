@@ -12,7 +12,11 @@ import ReactMarkdown from "react-markdown";
 import { Spinner } from "../ui/spinner";
 import { SubmitForm } from "./custom-dialog";
 
-export const Upload = () => {
+type UploadProps = {
+    closeNewChat: () => void;
+}
+
+export const Upload = ({ closeNewChat }: UploadProps) => {
     const [encoded, setEncoded] = useState<string | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const { mutate, isPending, text, setText } = useParsePdfMutation({
@@ -115,169 +119,174 @@ export const Upload = () => {
     });
   };
     return (
-        <div className="w-full space-y-6 h-full overflow-y-auto">
-            {file === null && (
-                <>
-                <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-bold text-sky-800">Upload Paper</h2>
-                    <p className="text-gray-600">Upload your PDF research paper to get started</p>
-                </div>
-
-                <div className="w-full">
-                    <div
-                        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-200 ${
-                            isDragOver 
-                                ? 'border-sky-400 bg-sky-50 scale-105' 
-                                : 'border-gray-300 hover:border-sky-300 hover:bg-gray-50'
-                        }`}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                    >
-                        <input
-                            type="file"
-                            accept="application/pdf"
-                            multiple={false}
-                            ref={inputRef}
-                            onChange={handleFileChange}
-                            className="hidden"
-                        />
-                        
-                        <div className="text-center space-y-4">
-                            <div className="flex justify-center">
-                                <div className={`p-4 rounded-full transition-colors duration-200 ${
-                                    isDragOver ? 'bg-sky-100' : 'bg-gray-100'
-                                }`}>
-                                    <UploadIcon className={`w-8 h-8 ${
-                                        isDragOver ? 'text-sky-600' : 'text-gray-500'
-                                    }`} />
-                                </div>
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    {isDragOver ? 'Drop your PDF here' : 'Upload your PDF file'}
-                                </h3>
-                                <p className="text-sm text-gray-500">
-                                    Drag and drop your PDF file here, or click the button below
-                                </p>
-                            </div>
-                            
-                            <Button
-                                onClick={handleClick}
-                                className="bg-sky-600 hover:bg-sky-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
-                            >
-                                <PlusIcon className="w-4 h-4 mr-2" />
-                                Choose File
-                            </Button>
-                        </div>
+        <Card className="w-full space-y-6 h-full overflow-y-auto">
+            <CardHeader>
+                <XIcon className="w-4 h-4" onClick={closeNewChat} />
+            </CardHeader>
+            <CardContent>
+                {file === null && (
+                    <>
+                    <div className="text-center space-y-2">
+                        <h2 className="text-3xl font-bold text-sky-800">Upload Paper</h2>
+                        <p className="text-gray-600">Upload your PDF research paper to get started</p>
                     </div>
-                </div>
-                </>
-            )}
 
-            {file && (
-                <Card className="w-full border-sky-200 bg-sky-50">
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-sky-100 rounded-lg">
-                                    <FileTextIcon className="w-6 h-6 text-sky-600" />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="font-medium text-gray-900 truncate">{file.name}</h4>
-                                    <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                {isPending ? (
-                                    <div className="flex items-center space-x-2">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-sky-600 border-t-transparent"></div>
-                                        <span className="text-sm text-sky-600">Processing...</span>
+                    <div className="w-full">
+                        <div
+                            className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-200 ${
+                                isDragOver 
+                                    ? 'border-sky-400 bg-sky-50 scale-105' 
+                                    : 'border-gray-300 hover:border-sky-300 hover:bg-gray-50'
+                            }`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                        >
+                            <input
+                                type="file"
+                                accept="application/pdf"
+                                multiple={false}
+                                ref={inputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                            
+                            <div className="text-center space-y-4">
+                                <div className="flex justify-center">
+                                    <div className={`p-4 rounded-full transition-colors duration-200 ${
+                                        isDragOver ? 'bg-sky-100' : 'bg-gray-100'
+                                    }`}>
+                                        <UploadIcon className={`w-8 h-8 ${
+                                            isDragOver ? 'text-sky-600' : 'text-gray-500'
+                                        }`} />
                                     </div>
-                                ) : (
-                                    <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                                )}
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        {isDragOver ? 'Drop your PDF here' : 'Upload your PDF file'}
+                                    </h3>
+                                    <p className="text-sm text-gray-500">
+                                        Drag and drop your PDF file here, or click the button below
+                                    </p>
+                                </div>
+                                
                                 <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={removeFile}
-                                    className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+                                    onClick={handleClick}
+                                    className="bg-sky-600 hover:bg-sky-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
                                 >
-                                    <XIcon className="w-4 h-4" />
+                                    <PlusIcon className="w-4 h-4 mr-2" />
+                                    Choose File
                                 </Button>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            )}
+                    </div>
+                    </>
+                )}
 
-            {isPending && (
-                <Card className="w-full">
-                    <CardContent className="p-6">
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="animate-spin rounded-full h-6 w-6 border-2 border-sky-600 border-t-transparent"></div>
-                                <span className="font-medium text-gray-900">Processing PDF...</span>
+                {file && (
+                    <Card className="w-full border-sky-200 bg-sky-50">
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-sky-100 rounded-lg">
+                                        <FileTextIcon className="w-6 h-6 text-sky-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-medium text-gray-900 truncate">{file.name}</h4>
+                                        <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    {isPending ? (
+                                        <div className="flex items-center space-x-2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-sky-600 border-t-transparent"></div>
+                                            <span className="text-sm text-sky-600">Processing...</span>
+                                        </div>
+                                    ) : (
+                                        <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={removeFile}
+                                        className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+                                    >
+                                        <XIcon className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div className="bg-sky-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {isPending && (
+                    <Card className="w-full">
+                        <CardContent className="p-6">
+                            <div className="space-y-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-2 border-sky-600 border-t-transparent"></div>
+                                    <span className="font-medium text-gray-900">Processing PDF...</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div className="bg-sky-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                                </div>
+                                <p className="text-sm text-gray-500">Extracting text content from your PDF</p>
                             </div>
-                            <p className="text-sm text-gray-500">Extracting text content from your PDF</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+                        </CardContent>
+                    </Card>
+                )}
 
-            {text && (
-                <Card className="w-full border-sky-200">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-sky-800 flex items-center space-x-2">
-                            <FileTextIcon className="w-5 h-5" />
-                            <span>Paper Content Preview</span>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-gray-700 bg-white rounded-lg border border-gray-200 p-4 max-h-64 overflow-y-auto">
-                        <div className="space-y-2">
-                            <p className="text-gray-600 font-medium">First 500 characters:</p>
-                            <p className="leading-relaxed">{text.slice(0, 500)}...</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+                {text && (
+                    <Card className="w-full border-sky-200">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-sky-800 flex items-center space-x-2">
+                                <FileTextIcon className="w-5 h-5" />
+                                <span>Paper Content Preview</span>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-sm text-gray-700 bg-white rounded-lg border border-gray-200 p-4 max-h-64 overflow-y-auto">
+                            <div className="space-y-2">
+                                <p className="text-gray-600 font-medium">First 500 characters:</p>
+                                <p className="leading-relaxed">{text.slice(0, 500)}...</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
-            {text && file && (
-                // <Button onClick={() => summarize(text)}>Summarize</Button>
-                <Card className="w-full border-sky-200">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-sky-800 flex items-center space-x-2">
-                            <FileTextIcon className="w-5 h-5" />
-                            <span>Summarize</span>
-                            <Button variant="outline" size="sm" onClick={() => startStream(text)}>
-                                {isStreaming ? 
-                                <Spinner size="small" /> : 
-                                <>
-                                <span>Start</span>
-                                <MoveRightIcon className="w-5 h-5" />
-                                </>
-                                }
-                            </Button>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-gray-700 bg-white rounded-lg border border-gray-200 p-4 max-h-64 overflow-y-auto">
-                        <ReactMarkdown>{summaryStream}</ReactMarkdown>
-                    </CardContent>
-                </Card>
-            )}
+                {text && file && (
+                    // <Button onClick={() => summarize(text)}>Summarize</Button>
+                    <Card className="w-full border-sky-200">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-sky-800 flex items-center space-x-2">
+                                <FileTextIcon className="w-5 h-5" />
+                                <span>Summarize</span>
+                                <Button variant="outline" size="sm" onClick={() => startStream(text)}>
+                                    {isStreaming ? 
+                                    <Spinner size="small" /> : 
+                                    <>
+                                    <span>Start</span>
+                                    <MoveRightIcon className="w-5 h-5" />
+                                    </>
+                                    }
+                                </Button>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-sm text-gray-700 bg-white rounded-lg border border-gray-200 p-4 max-h-64 overflow-y-auto">
+                            <ReactMarkdown>{summaryStream}</ReactMarkdown>
+                        </CardContent>
+                    </Card>
+                )}
 
-            {text && summaryStream && file && !isPending && (
-                <div className="w-full flex flex-row justify-end">
-                <SubmitForm
-                  trigger={<Button>Save document!</Button>}
-                  submitFunction={add}
-                />
-                </div>
-            )}
-        </div>
+                {text && summaryStream && file && !isPending && (
+                    <div className="w-full flex flex-row justify-end">
+                    <SubmitForm
+                    trigger={<Button>Save document!</Button>}
+                    submitFunction={add}
+                    />
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     )
 }

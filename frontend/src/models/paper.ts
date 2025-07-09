@@ -26,6 +26,7 @@ export type PaperEntry = z.infer<typeof PaperEntrySchema>;
 export const RetrievedPaperEntrySchema = z.object({
     metadata: z.object({
     uuid: z.string(),
+    distance: z.number().optional(),
 }),
 ...PaperEntrySchema.shape,
 });

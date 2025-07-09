@@ -10,8 +10,40 @@ export const useGetPapersWithLimitSuspense = (limit: number = 20) => {
     const [result, {refetch, isError, error}] = trpc.paper.getPapersWithLimit.useSuspenseQuery({ limit });
 
     useEffect(() => {
+        if (! result) {
+            return;
+        }
         if (result.type === "success") {
             setPapers(result.data);
+        } else {
+            setPapers([]);
+            toast.error(result.message);
+        }
+    }, [result]);
+
+    useEffect(() => {
+        if (isError) {
+            toast.error(error.message);
+        }
+    }, [error]);
+
+    return { papers, refetch, isError, error };
+};
+
+export const useGetPapersNearTextSuspense = (searchQuery: string) => {
+    const [papers, setPapers] = useState<RetrievedPaperEntry[]>([]);
+    const [result, {refetch, isError, error}] = trpc.paper.getPapersNearText.useSuspenseQuery({ text: searchQuery });
+
+    useEffect(() => {
+        if (! result) {
+            return;
+        }
+        if (result.type === "success") {
+            console.log(result.data.map((item) => item.metadata.distance));
+            setPapers(result.data);
+        } else {
+            setPapers([]);
+            toast.error(result.message);
         }
     }, [result]);
 

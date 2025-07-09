@@ -10,10 +10,9 @@ export const searchSimilar = async (query: string): Promise<Result<RetrievedPape
   try {
     const paperCollection = await getPaperCollection();
     const result = await paperCollection.query.nearText([query], {
-      targetVector: ["summary"], 
+      returnMetadata: ['distance'],
       limit: 10,
     });
-    console.log(result);
     const r: RetrievedPaperEntry[] = result.objects.map((item) => {
       const parsed = PaperEntrySchema.safeParse(item.properties);
       if (!parsed.success) {
@@ -23,6 +22,7 @@ export const searchSimilar = async (query: string): Promise<Result<RetrievedPape
       return {
         metadata: {
           uuid: item.uuid,
+          distance: item.metadata?.distance,
         },
         ...parsed.data,
       };

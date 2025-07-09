@@ -30,6 +30,15 @@ Development features include:
 
 ### Individual Services
 
+!important
+
+Due to the Next.js pre-rendering issue, we need to build like this.
+
+```
+(zsh~1) cd frontend && npm run dev
+(zsh~2) docker compose up -d weaviate && docker compose up build frontend
+```
+
 To run only specific services:
 
 ```bash

@@ -1,5 +1,6 @@
-import { getPaperCollection } from "./client";
+import { getPaperChunkCollection, getPaperCollection } from "./client";
 import { Ok, Err, Result } from "@/lib/result";
+import { RetrievedPaperChunk, PaperChunkSchema } from "@/models/chunk";
 import { PaperEntrySchema, RetrievedPaperEntry } from "@/models/paper";
 
 export const getAllPapers = async (): Promise<Result<RetrievedPaperEntry[]>> => {
@@ -65,3 +66,43 @@ export const getPaperById = async (id: string): Promise<Result<RetrievedPaperEnt
     return Err(`Failed to get paper by id: ${err}`);
   }
 }
+
+export const getPaperChunksByPaperIdWithLimit = async (paperEntryUuid: string, limit: number = 20): Promise<Result<RetrievedPaperChunk[]>> => {
+  try {
+    const paperChunkCollection = await getPaperChunkCollection();
+    const result = await paperChunkCollection.query.fetchObjects({
+      limit: limit,
+      filters: paperChunkCollection.filter.byProperty('paperId').equal(paperEntryUuid),
+    })
+    const res: RetrievedPaperChunk[] = [];
+    for (let object of result.objects) {
+      const parsed = PaperChunkSchema.safeParse(object.properties);
+      if (!parsed.success) {
+        console.error(`Failed to parse paper chunk: ${parsed.error}`);
+        continue;
+      }
+      res.push({...parsed.data, metadata: {uuid: object.uuid}});
+    }
+    return Ok(res);
+  } catch (err) {
+    console.error(err);
+    return Err(`Failed to get paper chunks with limit: ${err}`);
+  }
+}
+
+export const isPaperChunkIndexed = async (paperEntryUuid: string): Promise<Result<boolean>> => {
+  try {
+    const paperChunkCollection = await getPaperChunkCollection();
+    const result = await paperChunkCollection.query.fetchObjects({
+      limit: 1,
+      filters: paperChunkCollection.filter.byProperty('paperId').equal(paperEntryUuid),
+    })
+
+    if (result.objects.length > 0) {
+        return Ok(true);
+    }
+    return Ok(false);
+  } catch (err) {
+    return Err(`Failed to check if paper chunk is indexed: ${err}`);
+  }
+  }
