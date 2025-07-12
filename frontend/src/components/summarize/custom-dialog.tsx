@@ -52,7 +52,7 @@ export const SubmitForm: FC<Props> = (props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Parse Bibtex</DialogTitle>
           <DialogDescription>

@@ -75,3 +75,34 @@ export const useCreateChunkMutation = () => {
         isPending,
     }
 }
+
+export const useSearchChunkSimilarSuspense = (uuid: string, query: string, limit: number = 20) => {
+    const [chunks, setChunks] = useState<RetrievedPaperChunk[]>([]);
+    const [result, {refetch, isError, error}] = trpc.chunk.searchChunkSimilar.useSuspenseQuery({
+        uuid: uuid,
+        query: query,
+        limit: limit,
+    });
+
+    useEffect(() => {
+        if (isError) {
+            toast.error(error.message);
+        }
+    }, [isError, error]);
+    
+    useEffect(() => {
+        if (! result) {
+            return;
+        }
+        if (result.type === "success") {
+            setChunks(result.data);
+        }
+    }, [result]);
+
+    return {
+        chunks,
+        refetch,
+        isError,
+        error,
+    };
+}

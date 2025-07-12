@@ -3,6 +3,7 @@ import { addPaperChunk } from "@/lib/weaviate/insert";
 import { procedure, router } from "../server";
 import z from "zod";
 import { PaperEntrySchema } from "@/models/paper";
+import { searchChunkSimilar } from "@/lib/weaviate/similarity-search";
 
 export const chunkRouter = router({
     isChunkIndexed: procedure
@@ -29,6 +30,16 @@ export const chunkRouter = router({
     }))
     .mutation(async ({ input }) => {
         const result = await addPaperChunk(input.paperEntry, input.paperEntryUuid);
+        return result;
+    }),
+    searchChunkSimilar: procedure
+    .input(z.object({
+        uuid: z.string(),
+        query: z.string(),
+        limit: z.number().min(1).max(100).optional(),
+    }))
+    .query(async ({ input }) => {
+        const result = await searchChunkSimilar(input.uuid, input.query);
         return result;
     }),
 });

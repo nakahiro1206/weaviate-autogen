@@ -105,6 +105,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
+    { name = "result" },
     { name = "uvicorn" },
     { name = "weaviate-client" },
 ]
@@ -116,6 +117,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.116.0" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "result", specifier = ">=0.17.0" },
     { name = "uvicorn", specifier = ">=0.35.0" },
     { name = "weaviate-client", specifier = ">=4.15.4" },
 ]
@@ -763,6 +765,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e1/0a/929373653770d8a0d7ea76c37de6e41f11eb07559b103b1c02cafb3f7cf8/requests-2.32.4.tar.gz", hash = "sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422", size = 135258, upload-time = "2025-06-09T16:43:07.34Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7c/e4/56027c4a6b4ae70ca9de302488c5ca95ad4a39e190093d6c1a8ace08341b/requests-2.32.4-py3-none-any.whl", hash = "sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c", size = 64847, upload-time = "2025-06-09T16:43:05.728Z" },
+]
+
+[[package]]
+name = "result"
+version = "0.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/47/2175be65744aa4d8419c27bd3a7a7d65af5bcad7a4dc6a812c00778754f0/result-0.17.0.tar.gz", hash = "sha256:b73da420c0cb1a3bf741dbd41ff96dedafaad6a1b3ef437a9e33e380bb0d91cf", size = 20180, upload-time = "2024-06-02T16:39:54.51Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/90/19110ce9374c3db619e2df0816f2c58e4ddc5cdad5f7284cd81d8b30b7cb/result-0.17.0-py3-none-any.whl", hash = "sha256:49fd668b4951ad15800b8ccefd98b6b94effc789607e19c65064b775570933e8", size = 11689, upload-time = "2024-06-02T16:39:52.715Z" },
 ]
 
 [[package]]
