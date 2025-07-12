@@ -26,8 +26,6 @@ class RetrievedPaperEntry(BaseModel):
     comment: Optional[str] = None
 
     def to_ai_readable(self) -> Dict[str, str | float | None]:
-        # AI cannot see nested properties so we should flatten them.
-        # moreover, we better remove unnecessary properties.
         return {
             "uuid": self.metadata.uuid,
             "distance": self.metadata.distance,

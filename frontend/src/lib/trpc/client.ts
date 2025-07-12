@@ -1,4 +1,4 @@
-import { httpBatchLink, httpLink, isNonJsonSerializable, splitLink } from '@trpc/client';
+import { httpBatchLink, httpLink, isNonJsonSerializable, splitLink, createWSClient, wsLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import type { AppRouter } from './routers/_app';
 
@@ -18,6 +18,14 @@ function getBaseUrl() {
   // assume docker compose
   return `http://host.docker.internal:${process.env.PORT ?? 3000}`;
 }
+
+const wsClient = createWSClient({
+  url: `ws://localhost:3000`, // send to websocket proxy server.
+  connectionParams: async () => ({
+    token: 'supersecret',
+  }),
+});
+
 export const trpc = createTRPCNext<AppRouter>({
   config(opts) {
     return {
@@ -27,24 +35,16 @@ export const trpc = createTRPCNext<AppRouter>({
           true: httpLink({ // for form data
             url: `${getBaseUrl()}/api/trpc`,
           }),
-          false: httpBatchLink({
-            url: `${getBaseUrl()}/api/trpc`,
+          false: splitLink({ // for subscription requests
+            condition: (opts) => opts.type === "subscription",
+            true: wsLink({
+              client: wsClient,
+            }),
+            false: httpBatchLink({ // for normal requests
+              url: `${getBaseUrl()}/api/trpc`,
+            }),
           }),
         }),
-        // httpBatchLink({
-        //   /**
-        //    * If you want to use SSR, you need to use the server's full URL
-        //    * @see https://trpc.io/docs/v11/ssr
-        //    **/
-        //   url: `${getBaseUrl()}/api/trpc`,
-        //   // You can pass any HTTP headers you wish here
-        //   async headers() {
-        //     return {
-        //       // authorization: getAuthCookie(),
-        //     };
-        //   },
-        // }),
-        
       ],
     };
   },

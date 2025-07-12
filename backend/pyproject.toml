@@ -5,12 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "arxiv>=2.2.0",
     "autogen-agentchat>=0.6.2",
     "autogen-ext[openai]>=0.6.2",
     "fastapi>=0.116.0",
     "python-dotenv>=1.1.1",
     "pyyaml>=6.0.2",
     "result>=0.17.0",
-    "uvicorn>=0.35.0",
+    "uvicorn[standard]>=0.35.0",
     "weaviate-client>=4.15.4",
 ]

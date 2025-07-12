@@ -1,5 +1,7 @@
 https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/human-in-the-loop.html
 
+https://clintgoodman27.medium.com/a-practical-guide-for-using-autogen-in-software-applications-8799185d27ee
+
 # Multi-Agent Academic Paper Discussion System
 
 This project implements a sophisticated multi-agent system using AutoGen for discussing and analyzing academic papers. The system consists of three specialized agents that work together to provide comprehensive paper analysis and discussion.

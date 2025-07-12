@@ -17,11 +17,10 @@ class RetrievedPaperChunk(BaseModel):
     metadata: Metadata
 
     def to_ai_readable(self) -> Dict[str, str | float | None]:
-        # AI cannot see nested properties so we should flatten them.
-        # moreover, we better remove unnecessary properties.
         return {
             "distance": self.metadata.distance,
             "text": self.text,
+            "distance": self.metadata.distance,
         }
     
 def validate_paper_chunk(paper_chunk: dict) -> Result[RetrievedPaperChunk, str]:
