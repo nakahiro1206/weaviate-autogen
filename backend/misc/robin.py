@@ -9,7 +9,7 @@ from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermi
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.ui import Console
 from typing import List
-from tools.weaviate_tools import search_paper, search_chunk
+from backend.lib.tools.weaviate_tools import search_paper, search_chunk
 
 async def main():
     # Get model client from config.
