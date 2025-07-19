@@ -1,108 +1,252 @@
-# Weaviate + AutoGen(under development)
+# Weaviate Driver
 
-## Usage
+A comprehensive application for managing and searching through academic papers, text documents, and conversations using Weaviate vector database.
 
-### Production Setup
+## 🏗️ Architecture
 
-To run the production environment:
+The application consists of three main components:
+
+- **Frontend**: Next.js application with TypeScript
+- **Backend**: FastAPI Python server with MySQL database
+- **Weaviate**: Vector database for semantic search
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Docker and Docker Compose
+- Python 3.12+ (for local development)
+- Node.js 18+ (for local development)
+
+### Running with Docker Compose
+
+1. **Clone the repository**:
+
+```bash
+git clone <repository-url>
+cd weaviate-driver
+```
+
+2. **Start all services**:
 
 ```bash
 docker-compose up -d
 ```
 
-This will start:
-
-- Frontend application on port 3000
-- Weaviate vector database on port 8080
-
-### Development Setup
-
-To run the development environment with hot reloading:
+3. **Verify the setup**:
 
 ```bash
-docker-compose -f docker-compose.dev.yml up -d
+python test_setup.py
 ```
 
-Development features include:
+4. **Access the application**:
 
-- Source code mounting for live development
-- Debug-friendly configurations
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8002
+- Weaviate: http://localhost:8080
 
-### Individual Services
-
-!important
-
-Due to the Next.js pre-rendering issue, we need to build like this.
+## 📁 Project Structure
 
 ```
-(zsh~1) cd frontend && npm run dev
-(zsh~2) docker compose up -d weaviate && docker compose up build frontend
+weaviate-driver/
+├── frontend/                 # Next.js frontend application
+│   ├── src/
+│   │   ├── app/             # Next.js app router
+│   │   ├── components/      # React components
+│   │   ├── lib/            # Utility libraries
+│   │   └── hooks/          # Custom React hooks
+│   └── Dockerfile
+├── backend/                 # FastAPI Python backend
+│   ├── routers/            # API route handlers
+│   ├── misc/
+│   │   ├── database/       # Database models and services
+│   │   └── di/            # Dependency injection
+│   ├── lib/               # Core libraries
+│   ├── models/            # Data models
+│   ├── server.py          # Main server file
+│   └── Dockerfile
+├── storage/               # Shared storage volume
+├── docker-compose.yml     # Docker Compose configuration
+└── test_setup.py         # Setup verification script
 ```
 
-To run only specific services:
+## 🔧 Services
+
+### Frontend (Port 3000)
+
+- **Framework**: Next.js with TypeScript
+- **Features**:
+  - Paper upload and management
+  - Text storage and search
+  - Chat interface
+  - PDF preview
+  - Real-time streaming
+
+### Backend (Port 8002)
+
+- **Framework**: FastAPI with Python
+- **Database**: PostgreSQL with SQLAlchemy
+- **Features**:
+  - REST API endpoints
+  - WebSocket support
+  - Database management
+  - File processing
+
+### Weaviate (Port 8080)
+
+- **Purpose**: Vector database for semantic search
+- **Features**:
+  - Document embeddings
+  - Similarity search
+  - Text2Vec OpenAI integration
+
+### PostgreSQL (Port 5432)
+
+- **Purpose**: Relational database for application data
+- **Features**:
+  - Session management
+  - Conversation history
+  - Agent states
+  - User data
+
+## 🛠️ Development
+
+### Local Development Setup
+
+#### Backend Development
+
+1. **Install dependencies**:
 
 ```bash
-# Run only frontend and Weaviate
-docker-compose up frontend weaviate
+cd backend
+uv sync
 ```
 
-## Environment Variables
-
-## Volumes
-
-The following volumes are mounted:
-
-- `./storage:/app/storage`: Shared storage directory
-
-## Building
-
-To rebuild all services:
+2. **Set up environment variables**:
+   Create a `.env` file in the backend directory:
 
 ```bash
-docker-compose build
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/weaviate_driver
+STORAGE_PATH=./storage
+HOST=0.0.0.0
+PORT=8002
+WEAVIATE_URL=http://localhost:8080
 ```
 
-To rebuild specific services:
+3. **Start PostgreSQL** (if not using Docker):
 
 ```bash
-docker-compose build frontend
+docker run -d --name postgres \
+  -e POSTGRES_DB=weaviate_driver \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  postgres:15
 ```
 
-## Logs
-
-To view logs for all services:
+4. **Initialize database**:
 
 ```bash
-docker-compose logs -f
+python init_db.py
 ```
 
-To view logs for specific services:
+5. **Run the server**:
 
 ```bash
-docker-compose logs -f frontend
+uv run python server.py
 ```
 
-## Stopping Services
+#### Frontend Development
 
-To stop all services:
+1. **Install dependencies**:
 
 ```bash
-docker-compose down
+cd frontend
+npm install
 ```
 
-To stop and remove volumes:
+2. **Run development server**:
+
+```bash
+npm run dev
+```
+
+### Database Management
+
+The backend uses SQLAlchemy with the following main tables:
+
+- **sessions**: Conversation sessions
+- **agents**: AI agents in conversations
+- **messages**: Conversation messages
+- **agent_states**: State management for agents
+- **team_states**: Team conversation state
+- **conversation_chunks**: Chunks for semantic search
+
+## 📚 API Documentation
+
+### Backend API Endpoints
+
+- `GET /` - API status
+- `GET /health` - Health check
+- `WS /ws` - WebSocket connection
+- `GET /history/*` - Conversation history
+
+### Weaviate API
+
+- `GET /v1/.well-known/ready` - Health check
+- `POST /v1/objects` - Create objects
+- `GET /v1/objects` - Search objects
+
+## 🔍 Testing
+
+Run the test script to verify your setup:
+
+```bash
+python test_setup.py
+```
+
+This will test:
+
+- Backend server health
+- Weaviate connectivity
+- Frontend accessibility
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Port conflicts**: Ensure ports 3000, 8002, 5432, and 8080 are available
+2. **Database connection**: Check PostgreSQL is running and accessible
+3. **Dependencies**: Run `uv sync` in backend and `npm install` in frontend
+
+### Logs
+
+View service logs:
+
+```bash
+# All services
+docker-compose logs
+
+# Specific service
+docker-compose logs backend
+docker-compose logs frontend
+docker-compose logs weaviate
+docker-compose logs postgres
+```
+
+### Reset Everything
+
+To start fresh:
 
 ```bash
 docker-compose down -v
+docker-compose up -d
 ```
 
-## Troubleshooting
+## 📝 License
 
-### Port Conflicts
+[Add your license information here]
 
-If you encounter port conflicts, you can modify the port mappings in the docker-compose files:
+## 🤝 Contributing
 
-```yaml
-ports:
-  - "3001:3001" # Change 3001 to an available port
-```
+[Add contribution guidelines here]

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 import logging
 import json
 from typing import Any
@@ -10,18 +10,36 @@ from autogen_core import CancellationToken
 from adapter.history import HistoryRepositoryImpl
 from adapter.team_state import TeamStateRepositoryImpl
 from adapter.team import TeamRepositoryImpl
+from adapter.storage import StorageRepositoryImpl
+from adapter.session_history import SessionHistoryRepositoryImpl
+from adapter.session_team_state import SessionTeamStateRepositoryImpl
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Global repositories (for backward compatibility)
 history_repository = HistoryRepositoryImpl()
 team_state_repository = TeamStateRepositoryImpl()
 team_repository = TeamRepositoryImpl()
+storage_repository = StorageRepositoryImpl()
 
 @router.websocket("/ws/chat")
-async def chat(websocket: WebSocket):
+async def chat(websocket: WebSocket, session_id: str = Query(..., description="Session ID for the chat")):
     await websocket.accept()
+    
+    # Validate session exists or create new one
+    session_info = await storage_repository.get_session_info(session_id)
+    if not session_info:
+        # Create new session if it doesn't exist
+        await storage_repository.init_session(session_id)
+        logger.info(f"Created new session: {session_id}")
+    else:
+        logger.info(f"Using existing session: {session_id}")
+
+    # Create session-specific repositories
+    session_history_repository = SessionHistoryRepositoryImpl(session_id)
+    session_team_state_repository = SessionTeamStateRepositoryImpl(session_id)
 
     # User input function used by the team.
     # this function is called from 2nd round of the team chat
@@ -50,8 +68,8 @@ async def chat(websocket: WebSocket):
 
             try:
                 await team_repository.load_model_config()
-                team_state = await team_state_repository.get_team_state()
-                history = await history_repository.get_history()
+                team_state = await session_team_state_repository.get_team_state()
+                history = await session_history_repository.get_history()
                 
                 team = await team_repository.get_team(_user_input, team_state)
                 stream = team.run_stream(task=initial_request)
@@ -64,8 +82,8 @@ async def chat(websocket: WebSocket):
                         history.append(message.model_dump(mode="json"))
 
                 team_state = await team.save_state()
-                await team_state_repository.save_team_state(team_state)
-                await history_repository.save_history(history)
+                await session_team_state_repository.save_team_state(team_state)
+                await session_history_repository.save_history(history)
 
             except WebSocketDisconnect:
                 logger.info("Client disconnected during message processing")

@@ -11,6 +11,35 @@ services:
       - ./storage:/app/storage
     depends_on:
       - weaviate
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/weaviate_driver
+      - STORAGE_PATH=/app/storage
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      - postgres
+      - weaviate
+
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=weaviate_driver
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   weaviate:
     command:
@@ -35,3 +64,4 @@ services:
 
 volumes:
   weaviate_data:
+  postgres_data:
