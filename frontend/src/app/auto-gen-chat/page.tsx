@@ -165,7 +165,7 @@ type Session = {
 };
 
 export default function AutoGenChatPage() {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<{content: string, source: string}[]>([]);
   const [input, setInput] = useState<string>('');
   const [isInputEnabled, setIsInputEnabled] = useState<boolean>(true);
   const [sessionId, setSessionId] = useState<string>('');
@@ -274,16 +274,16 @@ export default function AutoGenChatPage() {
           setIsInputEnabled(true);
           break;
         case 'error':
-          setMessages((prev) => [...prev, JSON.stringify(message)]);
+          setMessages((prev) => [...prev, {content: JSON.stringify(message), source: message.source}]);
           break;
         case 'ToolCallRequestEvent':
-          setMessages((prev) => [...prev, JSON.stringify(message.content)]);
+          setMessages((prev) => [...prev, {content: JSON.stringify(message.content), source: message.source}]);
           break;
         case 'ToolCallExecutionEvent':
-          setMessages((prev) => [...prev, JSON.stringify(message.content)]);
+          setMessages((prev) => [...prev, {content: JSON.stringify(message.content), source: message.source}]);
           break;
         case 'TextMessage':
-          setMessages((prev) => [...prev, JSON.stringify(message.content)]);
+          setMessages((prev) => [...prev, {content: JSON.stringify(message.content), source: message.source}]);
           setIsInputEnabled(false);
           break;
         default:
@@ -464,7 +464,7 @@ export default function AutoGenChatPage() {
               <div className="flex-1 mb-4 space-y-2 overflow-y-auto border rounded-lg p-4 bg-gray-50">
                 {messages.map((message, index) => (
                   <div key={index} className="border-b border-gray-200 pb-2 last:border-b-0">
-                    <JsonRenderer data={JSON.parse(message)} />
+                    <JsonRenderer data={JSON.parse(message.content)} source={message.source} />
                   </div>
                 ))}
               </div>

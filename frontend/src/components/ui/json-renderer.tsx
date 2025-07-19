@@ -1,8 +1,10 @@
 import React from 'react';
+import { Badge } from './badge';
 
 interface JsonRendererProps {
   data: any;
   className?: string;
+  source: string;
 }
 
 interface JsonValueProps {
@@ -76,11 +78,14 @@ const JsonValue: React.FC<JsonValueProps> = ({ value, key, level = 0 }) => {
   return <span className="text-gray-700">{String(value)}</span>;
 };
 
-export const JsonRenderer: React.FC<JsonRendererProps> = ({ data, className = '' }) => {
+export const JsonRenderer: React.FC<JsonRendererProps> = ({ data, className = '', source }) => {
   return (
-    <div className={`json-renderer font-mono text-sm ${className}`}>
-      <JsonValue value={data} />
-    </div>
+    <>
+      <Badge variant="outline">{source}</Badge>
+      <div className={`json-renderer font-mono text-sm ${className}`}>
+        <JsonValue value={data} />
+      </div>
+    </>
   );
 };
 
