@@ -41,7 +41,7 @@ class TeamRepositoryImpl:
                     func=search_paper,
                 )
             ],
-            system_message="search for the paper first, then search for the chunk related to the query from the paper. make sure to respond with the paper id(uuid)",
+            system_message="search for the paper related to the query. Make sure to respond with the paper id(uuid)",
             max_tool_iterations=10,  # At most 10 iterations of tool calls before stopping the loop.
         )
 

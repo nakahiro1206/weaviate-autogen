@@ -1,6 +1,6 @@
 import weaviate
 from weaviate import WeaviateClient
-from weaviate.classes.query import MetadataQuery
+from weaviate.classes.query import MetadataQuery, Filter
 import os
 from dotenv import load_dotenv
 from typing import List, Tuple, Dict
@@ -59,6 +59,9 @@ def search_paper(query: str) -> str | List[Dict[str, str | float | None]]:
                 else:
                     continue
             return retrieved_paper_entries
+        
+def add_hyphen_to_uuid(uuid: str) -> str:
+    return f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
 
 def search_chunk(paper_id: str, query: str) -> str | List[Dict[str, str | float | None]]:
     with WeaviateClientContext() as r:
@@ -73,7 +76,11 @@ def search_chunk(paper_id: str, query: str) -> str | List[Dict[str, str | float 
             return "Paper not found"
 
         chunk_collection = client.collections.get("PaperChunk")
+
+        # add hyphen to paper_id(uuid)
+        paper_id_with_hyphen = add_hyphen_to_uuid(paper_id)
         result = chunk_collection.query.near_text(
+            filters=Filter.by_property("paperId").equal(paper_id_with_hyphen),
             query=query,
             limit=10,
             return_metadata=MetadataQuery(distance=True)
