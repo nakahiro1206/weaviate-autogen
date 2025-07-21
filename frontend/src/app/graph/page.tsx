@@ -1,6 +1,9 @@
 'use client';
 import { TSNEGraph } from '@/components/graph/graph';
+import { trpc } from '@/lib/trpc/client';
 
-export default function GraphPage() {
+function GraphPage() {
   return <TSNEGraph />;
 }
+
+export default trpc.withTRPC(GraphPage);
