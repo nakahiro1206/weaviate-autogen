@@ -7,6 +7,7 @@ from typing import List, Tuple, Dict, Union, Any
 from result import Result, Ok, Err, is_err
 from models.paper import validate_paper_entry
 from models.chunk import validate_paper_chunk
+import numpy as np
 
 load_dotenv()
 openai_api_key = os.environ["OPENAI_API_KEY"]
@@ -42,7 +43,7 @@ def get_all_papers(include_vectors: bool = False) -> List[Dict[str, Any]]:
         for item in paper_collection.iterator(
             include_vector=True,
         ):
-            print(item.uuid, item.properties, item.vector)
+            print(item.uuid, item.properties)
             validation_result = validate_paper_entry({
                 **item.properties,
                 "metadata": {
@@ -55,6 +56,14 @@ def get_all_papers(include_vectors: bool = False) -> List[Dict[str, Any]]:
                 if include_vectors and item.vector is not None:
                     paper_data = dict(paper_data)  # Create a new dict to allow adding vector
                     paper_data["vector"] = item.vector
+                    # vecter is stored as {tag: vec}
+                    keys = list(paper_data["vector"].keys())
+                    print(keys)
+                    # assume summaryEmbedding
+                    tag = "summaryEmbedding"
+                    # shape of paper_data["vector"]
+                    print(np.array(paper_data["vector"][tag]).shape)
+                    # shape: (1536,)
                 res.append(paper_data)
             else:
                 continue

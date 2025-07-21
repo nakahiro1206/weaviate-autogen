@@ -6,12 +6,12 @@ from lib.weaviate.get_all import get_all_papers
 
 def perform_tsne(vectors: List[List[float]], ids: List[str], 
                  n_components: int = 2, perplexity: float = 30.0, 
-                 random_state: int = 42) -> Result[List[Dict[str, float]], str]:
+                 random_state: int = 42) -> Result[List[Dict[str, float | str]], str]:
     """
     Perform tSNE dimensionality reduction on embedding vectors.
     
     Args:
-        vectors: List of embedding vectors
+        vectors: List of embedding vectors (expected shape: (N, 1536))
         ids: List of corresponding IDs
         n_components: Number of dimensions for output (default: 2)
         perplexity: tSNE perplexity parameter (default: 30.0)
@@ -56,7 +56,7 @@ def perform_tsne(vectors: List[List[float]], ids: List[str],
         return Err(f"tSNE computation failed: {str(e)}")
 
 def get_papers_with_tsne(perplexity: float = 30.0, 
-                        random_state: int = 42) -> Result[List[Dict[str, float]], str]:
+                        random_state: int = 42) -> Result[List[Dict[str, float | str]], str]:
     """
     Get all papers with their embedding vectors and perform tSNE to get 2D coordinates.
     
@@ -96,7 +96,7 @@ def get_papers_with_tsne(perplexity: float = 30.0,
 def get_tsne_coordinates_from_vectors(vectors: List[List[float]], 
                                     ids: List[str],
                                     perplexity: float = 30.0,
-                                    random_state: int = 42) -> Result[List[Dict[str, float]], str]:
+                                    random_state: int = 42) -> Result[List[Dict[str, float | str]], str]:
     """
     Convenience function to get tSNE coordinates from vectors and IDs.
     

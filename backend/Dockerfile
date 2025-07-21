@@ -1,23 +1,13 @@
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy dependency files
-COPY pyproject.toml uv.lock ./
-
-# Install Python dependencies using uv
-RUN uv sync --frozen
 
 # Copy application code
 COPY . .
 
-# Create storage directory
-RUN mkdir -p /app/storage
+# Sync the project into a new environment, asserting the lockfile is up to date
+RUN uv sync --locked
 
 # Expose port
 EXPOSE 8002

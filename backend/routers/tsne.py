@@ -5,11 +5,11 @@ from lib.sklearn.tsne import get_papers_with_tsne, perform_tsne
 
 router = APIRouter(prefix="/tsne", tags=["tSNE"])
 
-@router.get("/papers", response_model=List[Dict[str, float]])
+@router.get("/papers", response_model=List[Dict[str, float | str]])
 async def get_papers_tsne_coordinates(
     perplexity: float = 30.0,
     random_state: int = 42
-) -> List[Dict[str, float]]:
+) -> List[Dict[str, float | str]]:
     """
     Get tSNE coordinates for all papers in the database.
     
@@ -27,13 +27,13 @@ async def get_papers_tsne_coordinates(
     
     return result.unwrap()
 
-@router.post("/vectors", response_model=List[Dict[str, float]])
+@router.post("/vectors", response_model=List[Dict[str, float | str]])
 async def get_tsne_coordinates_from_vectors(
     vectors: List[List[float]],
     ids: List[str],
     perplexity: float = 30.0,
     random_state: int = 42
-) -> List[Dict[str, float]]:
+) -> List[Dict[str, float | str]]:
     """
     Get tSNE coordinates from custom vectors.
     
