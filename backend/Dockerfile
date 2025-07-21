@@ -12,8 +12,5 @@ RUN uv sync --locked
 # Expose port
 EXPOSE 8002
 
-# Install netcat for health check
-RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
-
 # Run the server
 CMD ["uv", "run", "python", "server.py"] 
