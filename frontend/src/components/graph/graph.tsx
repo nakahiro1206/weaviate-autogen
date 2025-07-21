@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   LinearScale,
@@ -19,22 +19,52 @@ export const options = {
   },
 };
 
-const random: (min: number, max: number) => number = (min, max) => Math.random() * (max - min) + min;
-
-export const data = {
-  datasets: [
-    {
-      label: 'A dataset',
-      data: Array.from({ length: 100 }, () => ({
-        x: random(-100, 100),
-        y: random(-100, 100),
-      })),
-      backgroundColor: 'rgba(255, 99, 132, 1)',
-    },
-  ],
+type TSNEPoint = {
+  id: string;
+  x: number;
+  y: number;
 };
 
-// TODO: connect to backend and receive tSNE results
 export const TSNEGraph = () => {
-  return <Scatter options={options} data={data} />;
+  const [points, setPoints] = useState<TSNEPoint[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:8002/api/v1/tsne/papers')
+      .then((res) => res.json())
+      .then((data: TSNEPoint[]) => {
+        setPoints(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const data = {
+    datasets: [
+      {
+        label: 'tSNE Papers',
+        data: points,
+        backgroundColor: 'rgba(255, 99, 132, 1)',
+      },
+    ],
+  };
+
+  if (loading) return <div>Loading...</div>;
+
+  return <Scatter options={{
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            return `ID: ${context.dataset.data[context.dataIndex]?.id || 'Unknown'}, X: ${context.parsed.x}, Y: ${context.parsed.y}`;
+          },
+        },
+      },
+    },
+  }} data={data} />;
 };
