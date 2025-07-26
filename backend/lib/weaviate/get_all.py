@@ -33,17 +33,18 @@ class WeaviateClientContext:
             self.client = None
 
 # TODO: implement tSNE
-def get_all_papers(include_vectors: bool = False) -> List[Dict[str, Any]]:
+def get_all_papers(include_vectors: bool = False) -> Tuple[List[Dict[str, Any]], List[np.ndarray]]:
     with WeaviateClientContext() as r:
         if is_err(r):
-            return []
+            return [], []
         client = r.unwrap()
         paper_collection = client.collections.get("Paper")
         res = []
+        vector_list: List[np.ndarray] = []
         for item in paper_collection.iterator(
             include_vector=True,
         ):
-            print(item.uuid, item.properties)
+            print(item.uuid, item.properties.keys())
             validation_result = validate_paper_entry({
                 **item.properties,
                 "metadata": {
@@ -54,17 +55,10 @@ def get_all_papers(include_vectors: bool = False) -> List[Dict[str, Any]]:
             if validation_result.is_ok():
                 paper_data = validation_result.unwrap().to_ai_readable()
                 if include_vectors and item.vector is not None:
-                    paper_data = dict(paper_data)  # Create a new dict to allow adding vector
-                    paper_data["vector"] = item.vector
-                    # vecter is stored as {tag: vec}
-                    keys = list(paper_data["vector"].keys())
-                    print(keys)
-                    # assume summaryEmbedding
-                    tag = "summaryEmbedding"
-                    # shape of paper_data["vector"]
-                    print(np.array(paper_data["vector"][tag]).shape)
-                    # shape: (1536,)
+                    # vectors should be shaped [1536]
+                    v = item.vector["summaryEmbedding"]
+                    vector_list.append(np.array(v).flatten())
                 res.append(paper_data)
             else:
                 continue
-        return res
+        return res, vector_list

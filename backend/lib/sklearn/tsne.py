@@ -4,7 +4,7 @@ from typing import List, Dict, Tuple
 from result import Result, Ok, Err
 from lib.weaviate.get_all import get_all_papers
 
-def perform_tsne(vectors: List[List[float]], ids: List[str], 
+def perform_tsne(vectors: List[np.ndarray], ids: List[str], 
                  n_components: int = 2, perplexity: float = 30.0, 
                  random_state: int = 42) -> Result[List[Dict[str, float | str]], str]:
     """
@@ -69,20 +69,12 @@ def get_papers_with_tsne(perplexity: float = 30.0,
     """
     try:
         # Get all papers with their vectors
-        papers_data = get_all_papers(include_vectors=True)
+        papers_data, vectors = get_all_papers(include_vectors=True)
         
         if not papers_data:
             return Err("No papers found")
         
-        # Extract vectors and IDs
-        vectors = []
-        ids = []
-        
-        for paper in papers_data:
-            # Check if the paper has a vector
-            if "vector" in paper and paper["vector"] is not None:
-                vectors.append(paper["vector"])
-                ids.append(paper["uuid"])
+        ids = [paper["uuid"] for paper in papers_data]
         
         if not vectors:
             return Err("No embedding vectors found in papers data")
@@ -93,7 +85,7 @@ def get_papers_with_tsne(perplexity: float = 30.0,
     except Exception as e:
         return Err(f"Failed to get papers with tSNE: {str(e)}")
 
-def get_tsne_coordinates_from_vectors(vectors: List[List[float]], 
+def get_tsne_coordinates_from_vectors(vectors: List[np.ndarray], 
                                     ids: List[str],
                                     perplexity: float = 30.0,
                                     random_state: int = 42) -> Result[List[Dict[str, float | str]], str]:

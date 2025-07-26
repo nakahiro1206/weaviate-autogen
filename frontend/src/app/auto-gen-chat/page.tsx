@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import JsonRenderer from '@/components/ui/json-renderer';
 import {z} from 'zod';
+import { useCreateSession, useDeleteSession, useSessions, useSessionHistory } from '@/hooks/session';
 
 const withTypeSchema = z.object({
   type: z.string(),
@@ -157,63 +158,33 @@ const parseMessage = (
   }
 }
 
-type Session = {
-  session_id: string;
-  created_at: string;
-  message_count: number;
-  last_activity: string;
-};
-
 export default function AutoGenChatPage() {
   const [messages, setMessages] = useState<{content: string, source: string}[]>([]);
   const [input, setInput] = useState<string>('');
   const [isInputEnabled, setIsInputEnabled] = useState<boolean>(true);
   const [sessionId, setSessionId] = useState<string>('');
   const [isSessionCreated, setIsSessionCreated] = useState<boolean>(false);
-  const [sessions, setSessions] = useState<Session[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const wsRef = useRef<WebSocket | null>(null);
+  const { sessions, isLoading, error, refetch } = useSessions();
+  const { mutate, isPending, error: createSessionError } = useCreateSession();
+  const { mutate: deleteSessionMutate, isPending: isDeletingSession, error: deleteSessionError } = useDeleteSession();
+  // TODO: migrate with messages state.
+  const { messages: historyMessages, isLoading: isLoadingHistory, error: historyError, refetch: refetchHistory } = useSessionHistory(sessionId);
 
   const createSession = async () => {
-    try {
-      const response = await fetch('http://localhost:8002/api/v1/sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: 'user123',
-          metadata: { source: 'frontend' }
-        }),
-      });
-      
-      if (response.ok) {
-        const sessionData = await response.json();
-        setSessionId(sessionData.session_id);
-        setIsSessionCreated(true);
-        console.log('Session created:', sessionData.session_id);
-        // Refresh sessions list
-        loadSessions();
-      } else {
-        console.error('Failed to create session');
-      }
-    } catch (error) {
+    mutate({
+      body: {
+        user_id: 'user123',
+        metadata: { source: 'frontend' }
+      },
+    }, {onSuccess: (data) => {
+      setSessionId(data.session_id);
+      setIsSessionCreated(true);
+      refetch();
+    }, onError: (error) => {
       console.error('Error creating session:', error);
-    }
-  };
-
-  const loadSessions = async () => {
-    try {
-      const response = await fetch('http://localhost:8002/api/v1/sessions');
-      if (response.ok) {
-        const data = await response.json();
-        setSessions(data.sessions || []);
-      } else {
-        console.error('Failed to load sessions');
-      }
-    } catch (error) {
-      console.error('Error loading sessions:', error);
-    }
+    }});
   };
 
   const switchSession = async (newSessionId: string) => {
@@ -227,14 +198,15 @@ export default function AutoGenChatPage() {
     setMessages([]); // Clear current messages
   };
 
-  const deleteSession = async (sessionIdToDelete: string) => {
-    try {
-      const response = await fetch(`http://localhost:8002/api/v1/sessions/${sessionIdToDelete}`, {
-        method: 'DELETE',
-      });
-      
-      if (response.ok) {
-        // If we're deleting the current session, clear it
+  const deleteSession = (sessionIdToDelete: string) => {
+    deleteSessionMutate({
+      params: {
+        path: {
+          session_id: sessionIdToDelete,
+        }
+      }
+    }, {
+      onSuccess: () => {
         if (sessionIdToDelete === sessionId) {
           setSessionId('');
           setIsSessionCreated(false);
@@ -243,14 +215,12 @@ export default function AutoGenChatPage() {
             wsRef.current.close();
           }
         }
-        // Refresh sessions list
-        loadSessions();
-      } else {
-        console.error('Failed to delete session');
+        refetch();
+      },
+      onError: (error) => {
+        console.error('Error deleting session:', error);
       }
-    } catch (error) {
-      console.error('Error deleting session:', error);
-    }
+    });
   };
 
   useEffect(() => {
@@ -305,25 +275,11 @@ export default function AutoGenChatPage() {
     };
   }, [sessionId]);
 
-  const loadHistory = async () => {
-    if (!sessionId) return;
-    
-    const response = await fetch(`http://localhost:8002/history?session_id=${sessionId}`);
-    const history = await response.json();
-    console.log('history', history);
-    setMessages(history.map((message: any) => JSON.stringify(message.content)));
-  };
-
   useEffect(() => {
     if (sessionId) {
-      loadHistory();
+      refetchHistory();
     }
   }, [sessionId]);
-
-  useEffect(() => {
-    // Load sessions on component mount
-    loadSessions();
-  }, []);
 
   const handleSend = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
